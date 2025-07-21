@@ -84,6 +84,19 @@
               placeholder="مثال: 45:30"
             />
           </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">تصنيف الفيديو</label>
+            <select
+              v-model="newVideo.section"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">اختر تصنيف الفيديو</option>
+              <option value="practical">فيديوهات عملي</option>
+              <option value="review">فيديوهات مراجعة</option>
+            </select>
+          </div>
 
           <!-- Video Upload Method -->
           <div>
@@ -213,6 +226,7 @@ const newVideo = ref({
   title: '',
   classId: '',
   duration: '',
+  section: '',
   videoUrl: ''
 })
 
@@ -250,7 +264,7 @@ const uploadVideo = () => {
   platformStore.addVideo(newVideo.value.classId, video)
   
   // Reset form
-  newVideo.value = { title: '', classId: '', duration: '', videoUrl: '' }
+  newVideo.value = { title: '', classId: '', duration: '', section: '', videoUrl: '' }
   selectedFile.value = null
   uploadMethod.value = 'file'
   

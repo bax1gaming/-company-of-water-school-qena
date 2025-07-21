@@ -138,6 +138,63 @@
       </div>
 
       <!-- Recent Announcements -->
+      <!-- User Management -->
+      <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div class="flex items-center space-x-3 rtl:space-x-reverse mb-6">
+          <UserCog class="w-6 h-6 text-blue-600" />
+          <h3 class="text-xl font-semibold text-gray-900">إدارة المستخدمين</h3>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+          <!-- Promote User -->
+          <div class="border border-gray-200 rounded-lg p-4">
+            <h4 class="font-semibold text-gray-900 mb-4">ترقية مستخدم إلى مدرب</h4>
+            <form @submit.prevent="promoteToTrainer" class="space-y-3">
+              <input
+                v-model="promoteForm.identifier"
+                type="text"
+                placeholder="رقم الهاتف أو البريد الإلكتروني"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <input
+                v-model="promoteForm.specialization"
+                type="text"
+                placeholder="التخصص (مثل: مياه الشرب)"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <button
+                type="submit"
+                class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700"
+              >
+                ترقية إلى مدرب
+              </button>
+            </form>
+          </div>
+          
+          <!-- Promote to Admin -->
+          <div class="border border-gray-200 rounded-lg p-4">
+            <h4 class="font-semibold text-gray-900 mb-4">ترقية مستخدم إلى مدير</h4>
+            <form @submit.prevent="promoteToAdmin" class="space-y-3">
+              <input
+                v-model="adminForm.identifier"
+                type="text"
+                placeholder="رقم الهاتف أو البريد الإلكتروني"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <button
+                type="submit"
+                class="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700"
+              >
+                ترقية إلى مدير
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
       <div class="bg-white rounded-xl shadow-lg p-6">
         <div class="flex items-center space-x-3 rtl:space-x-reverse mb-6">
           <Bell class="w-6 h-6 text-blue-600" />
@@ -184,7 +241,8 @@ import {
   Video, 
   Bell, 
   Megaphone,
-  Trash2
+  Trash2,
+  UserCog
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -194,6 +252,15 @@ const platformStore = usePlatformStore()
 const newAnnouncement = ref({
   title: '',
   content: ''
+})
+
+const promoteForm = ref({
+  identifier: '',
+  specialization: ''
+})
+
+const adminForm = ref({
+  identifier: ''
 })
 
 const totalStudents = computed(() => {
@@ -233,5 +300,29 @@ const deleteAnnouncement = (id) => {
 
 const viewClass = (classId) => {
   router.push(`/class/${classId}`)
+}
+
+const promoteToTrainer = () => {
+  const result = authStore.promoteUser(promoteForm.value.identifier, 'trainer', {
+    specialization: promoteForm.value.specialization
+  })
+  
+  if (result.success) {
+    alert('تم ترقية المستخدم إلى مدرب بنجاح!')
+    promoteForm.value = { identifier: '', specialization: '' }
+  } else {
+    alert(result.message)
+  }
+}
+
+const promoteToAdmin = () => {
+  const result = authStore.promoteUser(adminForm.value.identifier, 'admin')
+  
+  if (result.success) {
+    alert('تم ترقية المستخدم إلى مدير بنجاح!')
+    adminForm.value = { identifier: '' }
+  } else {
+    alert(result.message)
+  }
 }
 </script>

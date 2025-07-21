@@ -121,21 +121,56 @@ export const useAuthStore = defineStore('auth', () => {
     // Check if user already exists
     const existingUser = mockUsers.find(u => 
       u.phone === userData.phone || 
-      u.email === userData.email
+      u.email === userData.email ||
+      u.username === userData.username
     )
     
     if (existingUser) {
-      return { success: false, message: 'رقم الهاتف أو البريد الإلكتروني مستخدم بالفعل' }
+      return { success: false, message: 'رقم الهاتف أو البريد الإلكتروني أو اسم المستخدم مستخدم بالفعل' }
     }
 
     const newUser = {
       id: mockUsers.length + 1,
       ...userData,
-      role: 'student'
+      role: 'student',
+      studentCode: `ST${Date.now().toString().slice(-6)}`
     }
     
     mockUsers.push(newUser)
     return { success: true, message: 'تم إنشاء الحساب بنجاح' }
+  }
+
+  const promoteUser = (identifier, newRole, additionalData = {}) => {
+    const userIndex = mockUsers.findIndex(u => 
+      u.phone === identifier || 
+      u.email === identifier ||
+      u.username === identifier
+    )
+    
+    if (userIndex === -1) {
+      return { success: false, message: 'المستخدم غير موجود' }
+    }
+    
+    const user = mockUsers[userIndex]
+    
+    if (user.role === newRole) {
+      return { success: false, message: `المستخدم لديه صلاحية ${newRole} بالفعل` }
+    }
+    
+    // Update user role and additional data
+    mockUsers[userIndex] = {
+      ...user,
+      role: newRole,
+      ...additionalData
+    }
+    
+    // Update current user if it's the same user
+    if (user.value && user.value.id === user.id) {
+      user.value = mockUsers[userIndex]
+      localStorage.setItem('user', JSON.stringify(mockUsers[userIndex]))
+    }
+    
+    return { success: true, message: `تم ترقية المستخدم إلى ${newRole} بنجاح` }
   }
   const logout = () => {
     user.value = null
@@ -155,6 +190,7 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     loginWithPhoneOrEmail,
     signup,
+    promoteUser,
     logout,
     initAuth
   }
