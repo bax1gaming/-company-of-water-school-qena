@@ -3,12 +3,7 @@
     <div class="max-w-md w-full space-y-8">
       <div class="text-center">
         <div class="mx-auto w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
-          <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-            <circle cx="12" cy="9" r="1.5" fill="white"/>
-            <path d="M2 20h20v2H2z" opacity="0.7"/>
-            <path d="M4 18h16c0-2-1-3-2-3H6c-1 0-2 1-2 3z" opacity="0.5"/>
-          </svg>
+          <Droplets class="w-10 h-10 text-white" />
         </div>
         <h2 class="text-3xl font-bold text-gray-900">
           {{ isSignup ? 'إنشاء حساب جديد' : 'تسجيل الدخول' }}
