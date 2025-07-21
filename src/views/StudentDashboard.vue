@@ -101,7 +101,7 @@
                 </span>
                 <span class="flex items-center space-x-1 rtl:space-x-reverse">
                   <Video class="w-4 h-4" />
-                  <span>{{ cls.videos.length }}</span>
+                  <span>{{ platformStore.getVideosByClass(cls.id).length }}</span>
                 </span>
               </div>
               <div v-if="authStore.user?.class === cls.id" class="mt-3">

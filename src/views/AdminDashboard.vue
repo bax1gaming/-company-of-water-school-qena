@@ -129,7 +129,7 @@
                 </span>
                 <span class="flex items-center space-x-2 rtl:space-x-reverse">
                   <Video class="w-4 h-4" />
-                  <span>{{ cls.videos.length }} فيديو</span>
+                  <span>{{ platformStore.getVideosByClass(cls.id).length }} فيديو</span>
                 </span>
               </div>
             </div>
@@ -268,7 +268,7 @@ const totalStudents = computed(() => {
 })
 
 const totalVideos = computed(() => {
-  return platformStore.classes.reduce((total, cls) => total + cls.videos.length, 0)
+  return platformStore.getTotalVideosCount
 })
 
 const logout = () => {

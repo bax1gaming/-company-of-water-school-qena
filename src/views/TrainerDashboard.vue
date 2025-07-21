@@ -193,7 +193,7 @@
               </span>
               <span class="flex items-center space-x-2 rtl:space-x-reverse">
                 <Video class="w-4 h-4" />
-                <span>{{ cls.videos.length }} فيديو</span>
+                <span>{{ platformStore.getVideosByClass(cls.id).length }} فيديو</span>
               </span>
             </div>
           </div>
