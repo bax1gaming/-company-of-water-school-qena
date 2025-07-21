@@ -67,7 +67,23 @@ export const usePlatformStore = defineStore('platform', {
       }
     ],
     selectedClass: null,
-    selectedVideo: null
+    selectedVideo: null,
+    announcements: [
+      {
+        id: 1,
+        title: 'مرحباً بكم في المنصة التعليمية',
+        content: 'نرحب بجميع الطلاب والمدربين في منصتنا التعليمية الجديدة. نتمنى لكم تجربة تعليمية مثمرة.',
+        author: 'الإدارة',
+        date: '2024-01-15'
+      },
+      {
+        id: 2,
+        title: 'تحديث جدول المحاضرات',
+        content: 'تم تحديث جدول المحاضرات للفصل الدراسي الجديد. يرجى مراجعة الجدول الجديد.',
+        author: 'الإدارة',
+        date: '2024-01-20'
+      }
+    ]
   }),
 
   getters: {
@@ -150,6 +166,22 @@ export const usePlatformStore = defineStore('platform', {
       const index = this.files.findIndex(file => file.id === fileId)
       if (index !== -1) {
         this.files[index] = { ...this.files[index], ...updatedData }
+      }
+    },
+
+    addAnnouncement(announcementData) {
+      const newAnnouncement = {
+        id: Date.now(),
+        ...announcementData,
+        date: new Date().toLocaleDateString('ar-EG')
+      }
+      this.announcements.push(newAnnouncement)
+    },
+
+    deleteAnnouncement(announcementId) {
+      const index = this.announcements.findIndex(announcement => announcement.id === announcementId)
+      if (index !== -1) {
+        this.announcements.splice(index, 1)
       }
     }
   }
