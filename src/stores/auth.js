@@ -69,7 +69,9 @@ export const useAuthStore = defineStore('auth', () => {
     },
     {
       id: 3,
-      username: 'trainer1',
+      username: 'trainer1@example.com',
+      phone: '01111111111',
+      email: 'trainer1@example.com',
       password: '123456',
       role: 'trainer',
       name: 'د. محمد أحمد',
@@ -77,7 +79,9 @@ export const useAuthStore = defineStore('auth', () => {
     },
     {
       id: 4,
-      username: 'admin',
+      username: 'admin@example.com',
+      phone: '01000000000',
+      email: 'admin@example.com',
       password: '123456',
       role: 'admin',
       name: 'مدير المنصة'
@@ -100,17 +104,28 @@ export const useAuthStore = defineStore('auth', () => {
     return false
   }
 
+  const loginWithPhoneOrEmail = (identifier, password) => {
+    const foundUser = mockUsers.find(u => 
+      (u.phone === identifier || u.email === identifier) && 
+      u.password === password
+    )
+    if (foundUser) {
+      user.value = { ...foundUser }
+      localStorage.setItem('user', JSON.stringify(foundUser))
+      return true
+    }
+    return false
+  }
+
   const signup = (userData) => {
     // Check if user already exists
     const existingUser = mockUsers.find(u => 
-      u.username === userData.username || 
-      u.studentCode === userData.studentCode || 
       u.phone === userData.phone || 
       u.email === userData.email
     )
     
     if (existingUser) {
-      return { success: false, message: 'المستخدم موجود بالفعل' }
+      return { success: false, message: 'رقم الهاتف أو البريد الإلكتروني مستخدم بالفعل' }
     }
 
     const newUser = {
@@ -138,6 +153,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     isAuthenticated,
     login,
+    loginWithPhoneOrEmail,
     signup,
     logout,
     initAuth

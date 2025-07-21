@@ -16,61 +16,20 @@
           <!-- Login Form -->
           <div v-if="!isSignup">
             <label for="identifier" class="block text-sm font-medium text-gray-700 mb-2">
-              اسم المستخدم / كود الطالب / رقم الهاتف / البريد الإلكتروني
+              رقم الهاتف أو البريد الإلكتروني
             </label>
             <input
               id="identifier"
               v-model="identifier"
-              type="text"
+              type="email"
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="أدخل بيانات الدخول"
+              placeholder="أدخل رقم الهاتف أو البريد الإلكتروني"
             />
           </div>
 
           <!-- Signup Form -->
           <div v-if="isSignup" class="space-y-4">
-            <div>
-              <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                الاسم الكامل
-              </label>
-              <input
-                id="name"
-                v-model="signupData.name"
-                type="text"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="أدخل الاسم الكامل"
-              />
-            </div>
-
-            <div>
-              <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
-                اسم المستخدم
-              </label>
-              <input
-                id="username"
-                v-model="signupData.username"
-                type="text"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="أدخل اسم المستخدم"
-              />
-            </div>
-
-            <div>
-              <label for="studentCode" class="block text-sm font-medium text-gray-700 mb-2">
-                كود الطالب
-              </label>
-              <input
-                id="studentCode"
-                v-model="signupData.studentCode"
-                type="text"
-                required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="أدخل كود الطالب"
-              />
-            </div>
 
             <div>
               <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
@@ -168,18 +127,18 @@
         <div class="space-y-2 text-sm">
           <div class="flex justify-between">
             <span class="font-medium">طالب:</span>
-            <span class="text-gray-600">student1 / 123456</span>
+            <span class="text-gray-600">01234567890 / 123456</span>
           </div>
           <div class="flex justify-between">
             <span class="font-medium">مدرب:</span>
-            <span class="text-gray-600">trainer1 / 123456</span>
+            <span class="text-gray-600">trainer1@example.com / 123456</span>
           </div>
           <div class="flex justify-between">
             <span class="font-medium">مدير:</span>
-            <span class="text-gray-600">admin / 123456</span>
+            <span class="text-gray-600">admin@example.com / 123456</span>
           </div>
           <div class="text-xs text-gray-500 mt-2">
-            يمكن تسجيل الدخول باستخدام: اسم المستخدم، كود الطالب، رقم الهاتف، أو البريد الإلكتروني
+            يمكن تسجيل الدخول باستخدام رقم الهاتف أو البريد الإلكتروني
           </div>
         </div>
       </div>
@@ -204,9 +163,6 @@ const success = ref('')
 const loading = ref(false)
 
 const signupData = ref({
-  name: '',
-  username: '',
-  studentCode: '',
   phone: '',
   email: '',
   class: '',
@@ -247,7 +203,17 @@ const handleLogin = async () => {
   error.value = ''
 
   try {
-    const loginSuccess = authStore.login(identifier.value, password.value)
+    // التحقق من صحة البيانات المدخلة
+    const isEmail = identifier.value.includes('@')
+    const isPhone = /^[0-9+\-\s()]+$/.test(identifier.value)
+    
+    if (!isEmail && !isPhone) {
+      error.value = 'يرجى إدخال رقم هاتف صحيح أو بريد إلكتروني صحيح'
+      loading.value = false
+      return
+    }
+    
+    const loginSuccess = authStore.loginWithPhoneOrEmail(identifier.value, password.value)
     
     if (loginSuccess) {
       const user = authStore.user
@@ -265,7 +231,7 @@ const handleLogin = async () => {
           router.push('/')
       }
     } else {
-      error.value = 'بيانات الدخول أو كلمة المرور غير صحيحة'
+      error.value = 'رقم الهاتف أو البريد الإلكتروني أو كلمة المرور غير صحيحة'
     }
   } catch (err) {
     error.value = 'حدث خطأ أثناء تسجيل الدخول'
@@ -280,8 +246,24 @@ const handleSignup = async () => {
   success.value = ''
 
   try {
+    // التحقق من صحة البيانات
+    if (!/^[0-9+\-\s()]+$/.test(signupData.value.phone)) {
+      error.value = 'يرجى إدخال رقم هاتف صحيح'
+      loading.value = false
+      return
+    }
+    
+    if (!signupData.value.email.includes('@')) {
+      error.value = 'يرجى إدخال بريد إلكتروني صحيح'
+      loading.value = false
+      return
+    }
+    
     const userData = {
       ...signupData.value,
+      name: `طالب ${signupData.value.phone}`, // اسم افتراضي
+      username: signupData.value.phone, // استخدام رقم الهاتف كاسم مستخدم
+      studentCode: `ST${Date.now().toString().slice(-6)}`, // كود طالب تلقائي
       className: getClassNameById(signupData.value.class)
     }
     
@@ -291,9 +273,6 @@ const handleSignup = async () => {
       success.value = result.message
       // Reset form
       signupData.value = {
-        name: '',
-        username: '',
-        studentCode: '',
         phone: '',
         email: '',
         class: '',
