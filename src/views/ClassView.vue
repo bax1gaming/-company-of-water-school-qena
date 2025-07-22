@@ -138,7 +138,7 @@ export default {
   },
   methods: {
     goBack() {
-      this.$router.push('/student-dashboard')
+      this.$router.push('/student')
     },
     playVideo(video) {
       const platformStore = usePlatformStore()
