@@ -195,6 +195,198 @@
         </div>
       </div>
 
+      <!-- Video Management -->
+      <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div class="flex items-center space-x-3 rtl:space-x-reverse mb-6">
+          <Upload class="w-6 h-6 text-blue-600" />
+          <h3 class="text-xl font-semibold text-gray-900">إدارة الفيديوهات</h3>
+        </div>
+        
+        <!-- Upload Video Form -->
+        <div class="border border-gray-200 rounded-lg p-6 mb-6">
+          <h4 class="font-semibold text-gray-900 mb-4">رفع فيديو جديد</h4>
+          <form @submit.prevent="uploadVideo" class="space-y-4">
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">عنوان الفيديو</label>
+                <input
+                  v-model="newVideo.title"
+                  type="text"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="أدخل عنوان الفيديو"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">الصف الدراسي</label>
+                <select
+                  v-model="newVideo.classId"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">اختر الصف الدراسي</option>
+                  <option
+                    v-for="cls in platformStore.classes"
+                    :key="cls.id"
+                    :value="cls.id"
+                  >
+                    {{ cls.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">مدة الفيديو</label>
+                <input
+                  v-model="newVideo.duration"
+                  type="text"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="مثال: 45:30"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">تصنيف الفيديو</label>
+                <select
+                  v-model="newVideo.category"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">اختر تصنيف الفيديو</option>
+                  <option value="practical">فيديوهات عملي</option>
+                  <option value="review">فيديوهات مراجعة</option>
+                </select>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">وصف الفيديو</label>
+              <textarea
+                v-model="newVideo.description"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل وصف الفيديو"
+              ></textarea>
+            </div>
+
+            <!-- Video Upload Method -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">طريقة رفع الفيديو</label>
+              <div class="flex space-x-4 rtl:space-x-reverse mb-4">
+                <label class="flex items-center">
+                  <input
+                    type="radio"
+                    v-model="uploadMethod"
+                    value="file"
+                    class="mr-2 ml-2"
+                  />
+                  <span>رفع ملف فيديو</span>
+                </label>
+                <label class="flex items-center">
+                  <input
+                    type="radio"
+                    v-model="uploadMethod"
+                    value="url"
+                    class="mr-2 ml-2"
+                  />
+                  <span>رابط فيديو</span>
+                </label>
+              </div>
+
+              <!-- File Upload -->
+              <div v-if="uploadMethod === 'file'">
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                  <Video class="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p class="text-gray-600 mb-2">اسحب الفيديو هنا أو انقر للاختيار</p>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    class="hidden"
+                    ref="fileInput"
+                    @change="handleFileSelect"
+                  />
+                  <button
+                    type="button"
+                    @click="$refs.fileInput.click()"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                  >
+                    اختيار فيديو
+                  </button>
+                </div>
+                <p v-if="selectedFile" class="mt-2 text-sm text-green-600">
+                  تم اختيار: {{ selectedFile.name }}
+                </p>
+              </div>
+
+              <!-- URL Input -->
+              <div v-if="uploadMethod === 'url'">
+                <input
+                  v-model="newVideo.url"
+                  type="url"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="أدخل رابط الفيديو (YouTube, Vimeo, إلخ)"
+                />
+                <p class="mt-2 text-sm text-gray-500">
+                  يمكنك إدخال رابط من YouTube أو Vimeo أو أي منصة فيديو أخرى
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              رفع الفيديو
+            </button>
+          </form>
+        </div>
+        
+        <!-- Videos List -->
+        <div>
+          <h4 class="font-semibold text-gray-900 mb-4">الفيديوهات المرفوعة</h4>
+          <div class="space-y-4">
+            <div
+              v-for="video in platformStore.videos"
+              :key="video.id"
+              class="border border-gray-200 rounded-lg p-4 flex items-center justify-between"
+            >
+              <div class="flex items-center space-x-4 rtl:space-x-reverse">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Video class="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h5 class="font-medium text-gray-900">{{ video.title }}</h5>
+                  <p class="text-sm text-gray-600">{{ video.description }}</p>
+                  <div class="flex items-center space-x-4 rtl:space-x-reverse text-xs text-gray-500 mt-1">
+                    <span>{{ video.duration }}</span>
+                    <span>{{ getClassName(video.classId) }}</span>
+                    <span>{{ video.category === 'practical' ? 'عملي' : 'مراجعة' }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                <button
+                  @click="editVideo(video)"
+                  class="text-blue-600 hover:text-blue-800 p-2"
+                  title="تعديل"
+                >
+                  <Edit class="w-4 h-4" />
+                </button>
+                <button
+                  @click="deleteVideo(video.id)"
+                  class="text-red-600 hover:text-red-800 p-2"
+                  title="حذف"
+                >
+                  <Trash2 class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="bg-white rounded-xl shadow-lg p-6">
         <div class="flex items-center space-x-3 rtl:space-x-reverse mb-6">
           <Bell class="w-6 h-6 text-blue-600" />
@@ -242,7 +434,9 @@ import {
   Bell, 
   Megaphone,
   Trash2,
-  UserCog
+  UserCog,
+  Upload,
+  Edit
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -262,6 +456,18 @@ const promoteForm = ref({
 const adminForm = ref({
   identifier: ''
 })
+
+const newVideo = ref({
+  title: '',
+  classId: '',
+  duration: '',
+  category: '',
+  description: '',
+  url: ''
+})
+
+const uploadMethod = ref('file')
+const selectedFile = ref(null)
 
 const totalStudents = computed(() => {
   return platformStore.classes.reduce((total, cls) => total + cls.students, 0)
@@ -324,5 +530,65 @@ const promoteToAdmin = () => {
   } else {
     alert(result.message)
   }
+}
+
+const handleFileSelect = (event) => {
+  selectedFile.value = event.target.files[0]
+}
+
+const uploadVideo = () => {
+  if (uploadMethod.value === 'file' && !selectedFile.value) {
+    alert('يرجى اختيار ملف فيديو')
+    return
+  }
+  
+  if (uploadMethod.value === 'url' && !newVideo.value.url) {
+    alert('يرجى إدخال رابط الفيديو')
+    return
+  }
+
+  const videoData = {
+    title: newVideo.value.title,
+    description: newVideo.value.description,
+    duration: newVideo.value.duration,
+    classId: parseInt(newVideo.value.classId),
+    category: newVideo.value.category,
+    url: uploadMethod.value === 'url' ? newVideo.value.url : null,
+    uploadedBy: authStore.user.email || authStore.user.username,
+    uploadDate: new Date()
+  }
+
+  platformStore.addVideo(videoData)
+  
+  // Reset form
+  newVideo.value = {
+    title: '',
+    classId: '',
+    duration: '',
+    category: '',
+    description: '',
+    url: ''
+  }
+  selectedFile.value = null
+  uploadMethod.value = 'file'
+  
+  alert('تم رفع الفيديو بنجاح!')
+}
+
+const editVideo = (video) => {
+  // يمكن إضافة modal للتعديل لاحقاً
+  console.log('تعديل الفيديو:', video.title)
+}
+
+const deleteVideo = (videoId) => {
+  if (confirm('هل أنت متأكد من حذف هذا الفيديو؟')) {
+    platformStore.deleteVideo(videoId)
+    alert('تم حذف الفيديو بنجاح!')
+  }
+}
+
+const getClassName = (classId) => {
+  const cls = platformStore.getClassById(classId)
+  return cls ? cls.name : 'غير محدد'
 }
 </script>
