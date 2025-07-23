@@ -145,7 +145,7 @@
           <h3 class="text-xl font-semibold text-gray-900">إدارة المستخدمين</h3>
         </div>
         
-        <div class="grid md:grid-cols-2 gap-6">
+        <div class="grid md:grid-cols-3 gap-6">
           <!-- Promote User -->
           <div class="border border-gray-200 rounded-lg p-4">
             <h4 class="font-semibold text-gray-900 mb-4">ترقية مستخدم إلى مدرب</h4>
@@ -189,6 +189,50 @@
                 class="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700"
               >
                 ترقية إلى مدير
+              </button>
+            </form>
+          </div>
+          
+          <!-- Send Warning -->
+          <div class="border border-gray-200 rounded-lg p-4">
+            <h4 class="font-semibold text-gray-900 mb-4">إرسال تحذير لمستخدم</h4>
+            <form @submit.prevent="sendWarning" class="space-y-3">
+              <input
+                v-model="warningForm.identifier"
+                type="text"
+                placeholder="رقم الهاتف أو البريد الإلكتروني"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <input
+                v-model="warningForm.title"
+                type="text"
+                placeholder="عنوان التحذير"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <textarea
+                v-model="warningForm.message"
+                placeholder="نص التحذير"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              ></textarea>
+              <select
+                v-model="warningForm.severity"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">اختر مستوى التحذير</option>
+                <option value="low">تحذير بسيط</option>
+                <option value="medium">تحذير متوسط</option>
+                <option value="high">تحذير شديد</option>
+              </select>
+              <button
+                type="submit"
+                class="w-full bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700"
+              >
+                إرسال التحذير
               </button>
             </form>
           </div>
@@ -389,6 +433,71 @@
 
       <div class="bg-white rounded-xl shadow-lg p-6">
         <div class="flex items-center space-x-3 rtl:space-x-reverse mb-6">
+          <AlertTriangle class="w-6 h-6 text-blue-600" />
+          <h3 class="text-xl font-semibold text-gray-900">التحذيرات المرسلة</h3>
+        </div>
+        
+        <div class="space-y-4">
+          <div
+            v-for="warning in platformStore.getAllWarnings"
+            :key="warning.id"
+            class="border-r-4 p-4 rounded-lg"
+            :class="[
+              warning.severity === 'low' ? 'border-yellow-500 bg-yellow-50' :
+              warning.severity === 'medium' ? 'border-orange-500 bg-orange-50' :
+              'border-red-500 bg-red-50'
+            ]"
+          >
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h4 class="font-semibold text-gray-900">{{ warning.title }}</h4>
+                <p class="text-sm text-gray-600">إلى: {{ warning.userName }}</p>
+              </div>
+              <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                <span 
+                  class="px-2 py-1 rounded-full text-xs font-medium"
+                  :class="[
+                    warning.severity === 'low' ? 'bg-yellow-100 text-yellow-800' :
+                    warning.severity === 'medium' ? 'bg-orange-100 text-orange-800' :
+                    'bg-red-100 text-red-800'
+                  ]"
+                >
+                  {{ 
+                    warning.severity === 'low' ? 'بسيط' :
+                    warning.severity === 'medium' ? 'متوسط' : 'شديد'
+                  }}
+                </span>
+                <span 
+                  v-if="!warning.isRead"
+                  class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"
+                >
+                  غير مقروء
+                </span>
+                <button
+                  @click="deleteWarning(warning.id)"
+                  class="text-red-600 hover:text-red-800"
+                >
+                  <Trash2 class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <p class="text-gray-700 mb-2">{{ warning.message }}</p>
+            <div class="flex justify-between text-sm text-gray-500">
+              <span>بواسطة: {{ warning.sentBy }}</span>
+              <span>{{ warning.date }}</span>
+            </div>
+          </div>
+          
+          <div v-if="platformStore.getAllWarnings.length === 0" class="text-center py-8 text-gray-500">
+            <AlertTriangle class="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <p>لا توجد تحذيرات مرسلة</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Recent Announcements -->
+      <div class="bg-white rounded-xl shadow-lg p-6 mt-8">
+        <div class="flex items-center space-x-3 rtl:space-x-reverse mb-6">
           <Bell class="w-6 h-6 text-blue-600" />
           <h3 class="text-xl font-semibold text-gray-900">الإعلانات الحديثة</h3>
         </div>
@@ -436,7 +545,8 @@ import {
   Trash2,
   UserCog,
   Upload,
-  Edit
+  Edit,
+  AlertTriangle
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -455,6 +565,13 @@ const promoteForm = ref({
 
 const adminForm = ref({
   identifier: ''
+})
+
+const warningForm = ref({
+  identifier: '',
+  title: '',
+  message: '',
+  severity: ''
 })
 
 const newVideo = ref({
@@ -590,5 +707,51 @@ const deleteVideo = (videoId) => {
 const getClassName = (classId) => {
   const cls = platformStore.getClassById(classId)
   return cls ? cls.name : 'غير محدد'
+}
+
+const sendWarning = () => {
+  // البحث عن المستخدم
+  const users = [
+    ...authStore.mockUsers || []
+  ]
+  
+  const targetUser = users.find(u => 
+    u.phone === warningForm.value.identifier || 
+    u.email === warningForm.value.identifier ||
+    u.username === warningForm.value.identifier
+  )
+  
+  if (!targetUser) {
+    alert('المستخدم غير موجود')
+    return
+  }
+  
+  const warningData = {
+    userId: targetUser.id,
+    userName: targetUser.name,
+    title: warningForm.value.title,
+    message: warningForm.value.message,
+    severity: warningForm.value.severity,
+    sentBy: authStore.user.name
+  }
+  
+  platformStore.addWarning(warningData)
+  
+  // Reset form
+  warningForm.value = {
+    identifier: '',
+    title: '',
+    message: '',
+    severity: ''
+  }
+  
+  alert('تم إرسال التحذير بنجاح!')
+}
+
+const deleteWarning = (warningId) => {
+  if (confirm('هل أنت متأكد من حذف هذا التحذير؟')) {
+    platformStore.deleteWarning(warningId)
+    alert('تم حذف التحذير بنجاح!')
+  }
 }
 </script>

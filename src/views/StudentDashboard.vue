@@ -36,6 +36,57 @@
         </div>
       </div>
 
+      <!-- Warnings Section -->
+      <div v-if="userWarnings.length > 0" class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div class="flex items-center space-x-3 rtl:space-x-reverse mb-6">
+          <AlertTriangle class="w-6 h-6 text-orange-600" />
+          <h3 class="text-xl font-semibold text-gray-900">التحذيرات</h3>
+        </div>
+        <div class="space-y-4">
+          <div
+            v-for="warning in userWarnings"
+            :key="warning.id"
+            class="border-r-4 p-4 rounded-lg"
+            :class="[
+              warning.severity === 'low' ? 'border-yellow-500 bg-yellow-50' :
+              warning.severity === 'medium' ? 'border-orange-500 bg-orange-50' :
+              'border-red-500 bg-red-50'
+            ]"
+          >
+            <div class="flex justify-between items-start mb-2">
+              <h4 class="font-semibold text-gray-900">{{ warning.title }}</h4>
+              <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                <span 
+                  class="px-2 py-1 rounded-full text-xs font-medium"
+                  :class="[
+                    warning.severity === 'low' ? 'bg-yellow-100 text-yellow-800' :
+                    warning.severity === 'medium' ? 'bg-orange-100 text-orange-800' :
+                    'bg-red-100 text-red-800'
+                  ]"
+                >
+                  {{ 
+                    warning.severity === 'low' ? 'تحذير بسيط' :
+                    warning.severity === 'medium' ? 'تحذير متوسط' : 'تحذير شديد'
+                  }}
+                </span>
+                <button
+                  v-if="!warning.isRead"
+                  @click="markWarningAsRead(warning.id)"
+                  class="text-blue-600 hover:text-blue-800 text-xs"
+                >
+                  تم القراءة
+                </button>
+              </div>
+            </div>
+            <p class="text-gray-700 mb-2">{{ warning.message }}</p>
+            <div class="flex justify-between text-sm text-gray-500">
+              <span>من: {{ warning.sentBy }}</span>
+              <span>{{ warning.date }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Announcements -->
       <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
         <div class="flex items-center space-x-3 rtl:space-x-reverse mb-6">
@@ -130,7 +181,8 @@ import {
   BookOpen, 
   Users, 
   Video, 
-  Play 
+  Play,
+  AlertTriangle
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -144,6 +196,13 @@ const studentClass = computed(() => {
   return null
 })
 
+const userWarnings = computed(() => {
+  if (authStore.user?.id) {
+    return platformStore.getWarningsByUser(authStore.user.id)
+  }
+  return []
+})
+
 const logout = () => {
   authStore.logout()
   router.push('/')
@@ -151,5 +210,9 @@ const logout = () => {
 
 const viewClass = (classId) => {
   router.push(`/class/${classId}`)
+}
+
+const markWarningAsRead = (warningId) => {
+  platformStore.markWarningAsRead(warningId)
 }
 </script>

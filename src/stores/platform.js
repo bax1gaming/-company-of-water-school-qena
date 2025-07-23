@@ -83,6 +83,19 @@ export const usePlatformStore = defineStore('platform', {
         author: 'الإدارة',
         date: '2024-01-20'
       }
+    ],
+    warnings: [
+      {
+        id: 1,
+        userId: 1,
+        userName: 'أحمد محمد',
+        title: 'تحذير بخصوص الحضور',
+        message: 'يرجى الالتزام بمواعيد المحاضرات',
+        severity: 'medium',
+        sentBy: 'مدير المنصة',
+        date: '2024-01-22',
+        isRead: false
+      }
     ]
   }),
 
@@ -111,6 +124,12 @@ export const usePlatformStore = defineStore('platform', {
     },
     getTotalFilesCount: (state) => {
       return state.files.length
+    },
+    getWarningsByUser: (state) => (userId) => {
+      return state.warnings.filter(warning => warning.userId === userId)
+    },
+    getAllWarnings: (state) => {
+      return state.warnings
     }
   },
 
@@ -182,6 +201,30 @@ export const usePlatformStore = defineStore('platform', {
       const index = this.announcements.findIndex(announcement => announcement.id === announcementId)
       if (index !== -1) {
         this.announcements.splice(index, 1)
+      }
+    },
+
+    addWarning(warningData) {
+      const newWarning = {
+        id: Date.now(),
+        ...warningData,
+        date: new Date().toLocaleDateString('ar-EG'),
+        isRead: false
+      }
+      this.warnings.push(newWarning)
+    },
+
+    markWarningAsRead(warningId) {
+      const warning = this.warnings.find(w => w.id === warningId)
+      if (warning) {
+        warning.isRead = true
+      }
+    },
+
+    deleteWarning(warningId) {
+      const index = this.warnings.findIndex(warning => warning.id === warningId)
+      if (index !== -1) {
+        this.warnings.splice(index, 1)
       }
     }
   }
