@@ -11,13 +11,26 @@
               <p class="text-sm text-gray-600">مرحباً {{ authStore.user?.name }}</p>
             </div>
           </div>
-          <button
-            @click="logout"
-            class="text-gray-600 hover:text-gray-900 flex items-center space-x-2 rtl:space-x-reverse"
-          >
-            <LogOut class="w-5 h-5" />
-            <span>تسجيل الخروج</span>
-          </button>
+          <div class="flex items-center space-x-4 rtl:space-x-reverse">
+            <button
+              @click="showWarnings = true"
+              class="relative text-gray-600 hover:text-gray-900 p-2"
+              title="التحذيرات والإشعارات"
+            >
+              <Bell class="w-6 h-6" />
+              <span v-if="unreadWarningsCount > 0" 
+                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {{ unreadWarningsCount }}
+              </span>
+            </button>
+            <button
+              @click="logout"
+              class="text-gray-600 hover:text-gray-900 flex items-center space-x-2 rtl:space-x-reverse"
+            >
+              <LogOut class="w-5 h-5" />
+              <span>تسجيل الخروج</span>
+            </button>
+          </div>
         </div>
       </div>
     </header>
@@ -114,14 +127,22 @@
         </div>
       </div>
     </div>
+
+    <!-- Warnings Modal -->
+    <WarningsModal 
+      :is-open="showWarnings" 
+      @close="showWarnings = false" 
+    />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { usePlatformStore } from '../stores/platform'
+import { useWarningsStore } from '../stores/warnings'
+import WarningsModal from '../components/WarningsModal.vue'
 import { 
   Droplets, 
   LogOut, 
@@ -136,6 +157,9 @@ import {
 const router = useRouter()
 const authStore = useAuthStore()
 const platformStore = usePlatformStore()
+const warningsStore = useWarningsStore()
+
+const showWarnings = ref(false)
 
 const studentClass = computed(() => {
   if (authStore.user?.class) {
@@ -144,6 +168,10 @@ const studentClass = computed(() => {
   return null
 })
 
+const unreadWarningsCount = computed(() => {
+  if (!authStore.user) return 0
+  return warningsStore.getUnreadWarningsCount(authStore.user.id, authStore.user.role)
+})
 const logout = () => {
   authStore.logout()
   router.push('/')
