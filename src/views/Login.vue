@@ -1,21 +1,27 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-20 animate-pulse"></div>
+      <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full opacity-20 animate-pulse" style="animation-delay: 1s;"></div>
+    </div>
+
     <div class="max-w-md w-full space-y-8">
-      <div class="text-center">
-        <div class="mx-auto w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
-          <Droplets class="w-10 h-10 text-white" />
+      <div class="text-center relative z-10">
+        <div class="mx-auto w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-2xl glow-effect float-animation">
+          <Droplets class="w-12 h-12 text-white" />
         </div>
-        <h2 class="text-3xl font-bold text-gray-900">
+        <h2 class="text-4xl font-bold text-gradient mb-4">
           {{ isSignup ? 'إنشاء حساب جديد' : 'تسجيل الدخول' }}
         </h2>
-        <p class="mt-2 text-gray-600">المنصة الرسمية لطلاب مياه الشرب والصرف الصحي</p>
+        <p class="mt-2 text-gray-700 font-medium text-lg">المنصة الرسمية لطلاب مياه الشرب والصرف الصحي</p>
       </div>
 
-      <form @submit.prevent="isSignup ? handleSignup() : handleLogin()" class="mt-8 space-y-6">
-        <div class="bg-white p-8 rounded-xl shadow-lg space-y-6">
+      <form @submit.prevent="isSignup ? handleSignup() : handleLogin()" class="mt-8 space-y-6 relative z-10">
+        <div class="card-enhanced p-10 space-y-6 hover-lift">
           <!-- Login Form -->
           <div v-if="!isSignup">
-            <label for="identifier" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="identifier" class="block text-sm font-bold text-gray-700 mb-3">
               رقم الهاتف أو البريد الإلكتروني
             </label>
             <input
@@ -23,7 +29,7 @@
               v-model="identifier"
               type="email"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
               placeholder="أدخل رقم الهاتف أو البريد الإلكتروني"
             />
           </div>
@@ -31,7 +37,7 @@
           <!-- Signup Form -->
           <div v-if="isSignup" class="space-y-4">
             <div>
-              <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="name" class="block text-sm font-bold text-gray-700 mb-3">
                 الاسم الكامل
               </label>
               <input
@@ -39,13 +45,13 @@
                 v-model="signupData.name"
                 type="text"
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
                 placeholder="أدخل الاسم الكامل"
               />
             </div>
 
             <div>
-              <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="username" class="block text-sm font-bold text-gray-700 mb-3">
                 اسم المستخدم
               </label>
               <input
@@ -53,13 +59,13 @@
                 v-model="signupData.username"
                 type="text"
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
                 placeholder="أدخل اسم المستخدم"
               />
             </div>
 
             <div>
-              <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="phone" class="block text-sm font-bold text-gray-700 mb-3">
                 رقم الهاتف
               </label>
               <input
@@ -67,13 +73,13 @@
                 v-model="signupData.phone"
                 type="tel"
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
                 placeholder="أدخل رقم الهاتف"
               />
             </div>
 
             <div>
-              <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="email" class="block text-sm font-bold text-gray-700 mb-3">
                 البريد الإلكتروني
               </label>
               <input
@@ -81,20 +87,20 @@
                 v-model="signupData.email"
                 type="email"
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
                 placeholder="أدخل البريد الإلكتروني"
               />
             </div>
 
             <div>
-              <label for="class" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="class" class="block text-sm font-bold text-gray-700 mb-3">
                 الصف الدراسي
               </label>
               <select
                 id="class"
                 v-model="signupData.class"
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
               >
                 <option value="">اختر الصف</option>
                 <option value="first-general">الصف الأول - تخصص عام</option>
@@ -106,7 +112,7 @@
             </div>
           </div>
           <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="password" class="block text-sm font-bold text-gray-700 mb-3">
               كلمة المرور
             </label>
             <input
@@ -114,25 +120,28 @@
               v-model="passwordModel"
               type="password"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
               placeholder="أدخل كلمة المرور"
             />
           </div>
 
-          <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div v-if="error" class="bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 text-red-700 px-6 py-4 rounded-xl font-medium">
             {{ error }}
           </div>
 
-          <div v-if="success" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+          <div v-if="success" class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 text-green-700 px-6 py-4 rounded-xl font-medium">
             {{ success }}
           </div>
 
           <button
             type="submit"
             :disabled="loading"
-            class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50"
+            class="w-full btn-gradient-primary py-4 px-6 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed hover-lift"
           >
-            <span v-if="loading">{{ isSignup ? 'جاري إنشاء الحساب...' : 'جاري تسجيل الدخول...' }}</span>
+            <span v-if="loading" class="flex items-center justify-center">
+              <div class="loading-spinner w-5 h-5 mr-3"></div>
+              {{ isSignup ? 'جاري إنشاء الحساب...' : 'جاري تسجيل الدخول...' }}
+            </span>
             <span v-else>{{ isSignup ? 'إنشاء حساب' : 'تسجيل الدخول' }}</span>
           </button>
 
@@ -140,7 +149,7 @@
             <button
               type="button"
               @click="toggleMode"
-              class="text-blue-600 hover:text-blue-800 text-sm"
+              class="text-purple-600 hover:text-purple-800 font-semibold text-sm transition-colors duration-300"
             >
               {{ isSignup ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد' }}
             </button>
@@ -149,22 +158,22 @@
       </form>
 
       <!-- Demo Accounts -->
-      <div v-if="!isSignup" class="bg-white p-6 rounded-xl shadow-lg">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">حسابات تجريبية:</h3>
-        <div class="space-y-2 text-sm">
+      <div v-if="!isSignup" class="card-enhanced p-8 hover-lift relative z-10">
+        <h3 class="text-xl font-bold text-gradient mb-6">حسابات تجريبية:</h3>
+        <div class="space-y-3 text-sm">
           <div class="flex justify-between">
-            <span class="font-medium">طالب:</span>
-            <span class="text-gray-600">01234567890 / 123456</span>
+            <span class="font-bold text-blue-600">طالب:</span>
+            <span class="text-gray-700 bg-blue-50 px-3 py-1 rounded-full">01234567890 / 123456</span>
           </div>
           <div class="flex justify-between">
-            <span class="font-medium">مدرب:</span>
-            <span class="text-gray-600">trainer1@example.com / 123456</span>
+            <span class="font-bold text-green-600">مدرب:</span>
+            <span class="text-gray-700 bg-green-50 px-3 py-1 rounded-full">trainer1@example.com / 123456</span>
           </div>
           <div class="flex justify-between">
-            <span class="font-medium">مدير:</span>
-            <span class="text-gray-600">admin@example.com / 123456</span>
+            <span class="font-bold text-purple-600">مدير:</span>
+            <span class="text-gray-700 bg-purple-50 px-3 py-1 rounded-full">admin@example.com / 123456</span>
           </div>
-          <div class="text-xs text-gray-500 mt-2">
+          <div class="text-xs text-gray-600 mt-4 p-3 bg-gray-50 rounded-lg">
             يمكن تسجيل الدخول باستخدام رقم الهاتف أو البريد الإلكتروني
           </div>
         </div>

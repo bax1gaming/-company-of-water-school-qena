@@ -1,31 +1,39 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 relative overflow-hidden">
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-10 animate-pulse"></div>
+      <div class="absolute -bottom-20 -left-20 w-48 h-48 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full opacity-10 animate-pulse" style="animation-delay: 1s;"></div>
+    </div>
+
     <!-- Header -->
-    <header class="bg-white shadow-sm">
+    <header class="glass-morphism shadow-xl relative z-10">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-4">
           <div class="flex items-center space-x-4 rtl:space-x-reverse">
-            <Droplets class="w-8 h-8 text-blue-600" />
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center glow-effect">
+              <Droplets class="w-7 h-7 text-white" />
+            </div>
             <div>
-              <h1 class="text-xl font-semibold text-gray-900">لوحة الطالب</h1>
-              <p class="text-sm text-gray-600">مرحباً {{ authStore.user?.name }}</p>
+              <h1 class="text-xl font-bold text-gradient">لوحة الطالب</h1>
+              <p class="text-sm text-gray-700 font-medium">مرحباً {{ authStore.user?.name }}</p>
             </div>
           </div>
           <div class="flex items-center space-x-4 rtl:space-x-reverse">
             <button
               @click="showWarnings = true"
-              class="relative text-gray-600 hover:text-gray-900 p-2"
+              class="relative text-gray-600 hover:text-purple-600 p-3 rounded-xl hover:bg-purple-50 transition-all duration-300"
               title="التحذيرات والإشعارات"
             >
               <Bell class="w-6 h-6" />
               <span v-if="unreadWarningsCount > 0" 
-                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    class="notification-badge absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs">
                 {{ unreadWarningsCount }}
               </span>
             </button>
             <button
               @click="logout"
-              class="text-gray-600 hover:text-gray-900 flex items-center space-x-2 rtl:space-x-reverse"
+              class="btn-gradient-secondary flex items-center space-x-2 rtl:space-x-reverse hover-lift"
             >
               <LogOut class="w-5 h-5" />
               <span>تسجيل الخروج</span>
@@ -35,39 +43,41 @@
       </div>
     </header>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
       <!-- Student Info Card -->
-      <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+      <div class="card-enhanced p-8 mb-8 hover-lift">
         <div class="flex items-center space-x-4 rtl:space-x-reverse">
-          <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-            <User class="w-8 h-8 text-blue-600" />
+          <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg glow-effect float-animation">
+            <User class="w-10 h-10 text-white" />
           </div>
           <div>
-            <h2 class="text-2xl font-bold text-gray-900">{{ authStore.user?.name }}</h2>
-            <p class="text-gray-600">{{ authStore.user?.className }}</p>
-            <p class="text-sm text-gray-500">كود الطالب: {{ authStore.user?.studentCode }}</p>
+            <h2 class="text-3xl font-bold text-gradient mb-2">{{ authStore.user?.name }}</h2>
+            <p class="text-gray-700 font-semibold text-lg">{{ authStore.user?.className }}</p>
+            <p class="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full inline-block mt-2">كود الطالب: {{ authStore.user?.studentCode }}</p>
           </div>
         </div>
       </div>
 
       <!-- Announcements -->
-      <div v-if="platformStore.announcements.length > 0" class="bg-white rounded-xl shadow-lg p-6 mb-8">
+      <div v-if="platformStore.announcements.length > 0" class="card-enhanced p-8 mb-8 hover-lift">
         <div class="flex items-center space-x-3 rtl:space-x-reverse mb-6">
-          <Megaphone class="w-6 h-6 text-blue-600" />
-          <h3 class="text-xl font-semibold text-gray-900">الإعلانات</h3>
+          <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center glow-effect">
+            <Megaphone class="w-6 h-6 text-white" />
+          </div>
+          <h3 class="text-2xl font-bold text-gradient">الإعلانات</h3>
         </div>
         
         <div class="space-y-4">
           <div
             v-for="announcement in platformStore.announcements.slice(0, 3)"
             :key="announcement.id"
-            class="border-r-4 border-blue-500 bg-blue-50 p-4 rounded-lg"
+            class="border-r-4 border-gradient-to-b from-blue-500 to-purple-500 bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl hover-lift"
           >
-            <h4 class="font-semibold text-gray-900 mb-2">{{ announcement.title }}</h4>
-            <p class="text-gray-700 mb-2">{{ announcement.content }}</p>
+            <h4 class="font-bold text-gray-900 mb-3 text-lg">{{ announcement.title }}</h4>
+            <p class="text-gray-700 mb-3 leading-relaxed">{{ announcement.content }}</p>
             <div class="flex justify-between text-sm text-gray-500">
-              <span>{{ announcement.author }}</span>
-              <span>{{ announcement.date }}</span>
+              <span class="font-medium">{{ announcement.author }}</span>
+              <span class="bg-white px-2 py-1 rounded-full">{{ announcement.date }}</span>
             </div>
           </div>
         </div>
@@ -75,63 +85,71 @@
 
       <!-- Quick Stats -->
       <div class="grid md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="card-enhanced p-8 hover-lift">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm text-gray-600">الفيديوهات المتاحة</p>
-              <p class="text-2xl font-bold text-gray-900">{{ availableVideos }}</p>
+              <p class="text-sm text-gray-600 font-medium mb-2">الفيديوهات المتاحة</p>
+              <p class="text-3xl font-bold text-gradient">{{ availableVideos }}</p>
             </div>
-            <Video class="w-8 h-8 text-blue-600" />
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center glow-effect">
+              <Video class="w-8 h-8 text-white" />
+            </div>
           </div>
         </div>
         
-        <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="card-enhanced p-8 hover-lift" style="animation-delay: 0.1s;">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm text-gray-600">الملفات والملخصات</p>
-              <p class="text-2xl font-bold text-gray-900">{{ availableFiles }}</p>
+              <p class="text-sm text-gray-600 font-medium mb-2">الملفات والملخصات</p>
+              <p class="text-3xl font-bold text-gradient">{{ availableFiles }}</p>
             </div>
-            <FileText class="w-8 h-8 text-green-600" />
+            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl flex items-center justify-center glow-effect">
+              <FileText class="w-8 h-8 text-white" />
+            </div>
           </div>
         </div>
         
-        <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="card-enhanced p-8 hover-lift" style="animation-delay: 0.2s;">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm text-gray-600">الصف الدراسي</p>
-              <p class="text-lg font-bold text-gray-900">{{ getClassLevel() }}</p>
+              <p class="text-sm text-gray-600 font-medium mb-2">الصف الدراسي</p>
+              <p class="text-2xl font-bold text-gradient">{{ getClassLevel() }}</p>
             </div>
-            <BookOpen class="w-8 h-8 text-purple-600" />
+            <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center glow-effect">
+              <BookOpen class="w-8 h-8 text-white" />
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Available Classes -->
-      <div class="bg-white rounded-xl shadow-lg p-6">
+      <div class="card-enhanced p-8 hover-lift">
         <div class="flex items-center space-x-3 rtl:space-x-reverse mb-6">
-          <BookOpen class="w-6 h-6 text-blue-600" />
-          <h3 class="text-xl font-semibold text-gray-900">الصفوف الدراسية المتاحة</h3>
+          <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center glow-effect">
+            <BookOpen class="w-6 h-6 text-white" />
+          </div>
+          <h3 class="text-2xl font-bold text-gradient">الصفوف الدراسية المتاحة</h3>
         </div>
         
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div
             v-for="cls in availableClasses"
             :key="cls.id"
-            class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer hover:border-blue-300"
+            class="card-enhanced p-8 cursor-pointer hover-lift glow-effect"
             @click="viewClass(cls.id)"
           >
             <div class="flex items-center space-x-3 rtl:space-x-reverse mb-4">
-              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <BookOpen class="w-6 h-6 text-blue-600" />
+              <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <BookOpen class="w-7 h-7 text-white" />
               </div>
               <div>
-                <h4 class="font-semibold text-gray-900">{{ cls.name }}</h4>
-                <p class="text-sm text-gray-600">{{ cls.description }}</p>
+                <h4 class="font-bold text-gray-900 text-lg">{{ cls.name }}</h4>
+                <p class="text-sm text-gray-600 leading-relaxed">{{ cls.description }}</p>
               </div>
             </div>
             
             <div class="space-y-2">
-              <div class="flex items-center justify-between text-sm text-gray-500">
+              <div class="flex items-center justify-between text-sm text-gray-600 font-medium">
                 <span class="flex items-center space-x-2 rtl:space-x-reverse">
                   <Video class="w-4 h-4" />
                   <span>{{ getClassVideosCount(cls.id) }} فيديو</span>
@@ -145,9 +163,9 @@
               <div class="pt-3">
                 <button
                   @click.stop="viewClass(cls.id)"
-                  class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                  class="w-full btn-gradient-primary py-3 px-4 font-semibold"
                 >
-                  دخول الصف
+                  <span>دخول الصف</span>
                 </button>
               </div>
             </div>
@@ -155,9 +173,11 @@
         </div>
         
         <div v-if="availableClasses.length === 0" class="text-center py-12">
-          <BookOpen class="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">لا توجد صفوف متاحة</h3>
-          <p class="text-gray-600">لم يتم العثور على صفوف دراسية متاحة لك حالياً</p>
+          <div class="w-20 h-20 bg-gradient-to-br from-gray-300 to-gray-400 rounded-2xl mx-auto mb-6 flex items-center justify-center">
+            <BookOpen class="w-10 h-10 text-white" />
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-3">لا توجد صفوف متاحة</h3>
+          <p class="text-gray-600 leading-relaxed">لم يتم العثور على صفوف دراسية متاحة لك حالياً</p>
         </div>
       </div>
     </div>
