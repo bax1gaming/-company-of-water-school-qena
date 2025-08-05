@@ -1,1 +1,21 @@
-{"code":"rate-limited","message":"You have hit the rate limit. Please upgrade to keep chatting.","providerLimitHit":false,"isRetryable":true}
+<template>
+  <div class="admin-dashboard">
+    <h1>Admin Dashboard</h1>
+    <p>Welcome to the admin dashboard.</p>
+  </div>
+</template>
+
+<script setup>
+// Admin dashboard component logic will go here
+</script>
+
+<style scoped>
+.admin-dashboard {
+  padding: 20px;
+}
+
+.admin-dashboard h1 {
+  color: #333;
+  margin-bottom: 16px;
+}
+</style>
