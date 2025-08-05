@@ -435,7 +435,6 @@ import { useWarningsStore } from '../stores/warnings'
 import { useReportsStore } from '../stores/reports'
 import WarningsModal from '../components/WarningsModal.vue'
 import { 
-  Droplets, 
   LogOut, 
   UserCheck, 
   Upload, 
