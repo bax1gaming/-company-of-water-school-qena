@@ -9,7 +9,9 @@
     <div class="max-w-md w-full space-y-8">
       <div class="text-center relative z-10">
         <div class="mx-auto w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-2xl glow-effect float-animation">
-          <Droplets class="w-12 h-12 text-white" />
+          <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2c1 0 2 1 2 2 0 1.5-1 3-2 4-1-1-2-2.5-2-4 0-1 1-2 2-2zm0 6c2 0 4 1.5 4 4 0 3-2 6-4 8-2-2-4-5-4-8 0-2.5 2-4 4-4z"/>
+          </svg>
         </div>
         <h2 class="text-4xl font-bold text-gradient mb-4">
           {{ isSignup ? 'إنشاء حساب جديد' : 'تسجيل الدخول' }}
@@ -186,7 +188,6 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import { Droplets } from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -332,4 +333,3 @@ const handleSignup = async () => {
     loading.value = false
   }
 }
-</script>
