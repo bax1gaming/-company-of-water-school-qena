@@ -101,6 +101,184 @@
             <Bell class="w-8 h-8 text-orange-600" />
           </div>
         </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">تبليغات الطلاب المعلقة</p>
+              <p class="text-2xl font-bold text-gray-900">{{ pendingReportsCount }}</p>
+            </div>
+            <FileText class="w-8 h-8 text-red-600" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Reports Management -->
+      <div v-if="activeTab === 'student-reports'">
+        <AdminSection title="إدارة تبليغات الطلاب" :icon="FileText">
+          <!-- Reports Statistics -->
+          <div class="grid md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-yellow-700">قيد المراجعة</p>
+                  <p class="text-2xl font-bold text-yellow-900">{{ reportsStore.getReportsByStatus('pending').length }}</p>
+                </div>
+                <AlertTriangle class="w-8 h-8 text-yellow-600" />
+              </div>
+            </div>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-blue-700">تمت المراجعة</p>
+                  <p class="text-2xl font-bold text-blue-900">{{ reportsStore.getReportsByStatus('reviewed').length }}</p>
+                </div>
+                <Eye class="w-8 h-8 text-blue-600" />
+              </div>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-green-700">تم الحل</p>
+                  <p class="text-2xl font-bold text-green-900">{{ reportsStore.getReportsByStatus('resolved').length }}</p>
+                </div>
+                <CheckCircle class="w-8 h-8 text-green-600" />
+              </div>
+            </div>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-700">إجمالي التبليغات</p>
+                  <p class="text-2xl font-bold text-gray-900">{{ reportsStore.reports.length }}</p>
+                </div>
+                <FileText class="w-8 h-8 text-gray-600" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Reports List -->
+          <div>
+            <h4 class="font-semibold text-gray-900 mb-4">جميع التبليغات</h4>
+            <div v-if="reportsStore.reports.length === 0" class="text-center py-12">
+              <FileText class="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">لا توجد تبليغات</h3>
+              <p class="text-gray-600">لم يتم استلام أي تبليغات من المدربين بعد</p>
+            </div>
+            <div v-else class="space-y-4">
+              <div
+                v-for="report in reportsStore.reports"
+                :key="report.id"
+                class="border rounded-lg p-6"
+                :class="['border-l-4', getSeverityColor(report.severity)]"
+              >
+                <div class="flex justify-between items-start mb-4">
+                  <div>
+                    <h5 class="font-bold text-gray-900 text-lg mb-2">{{ report.title }}</h5>
+                    <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+                      <div>
+                        <p><span class="font-medium">الطالب:</span> {{ report.studentName }} ({{ report.studentCode }})</p>
+                        <p><span class="font-medium">المدرب:</span> {{ report.trainerName }}</p>
+                      </div>
+                      <div>
+                        <p><span class="font-medium">نوع التبليغ:</span> 
+                          {{ report.reportType === 'behavior' ? 'سلوك غير مناسب' : 
+                             report.reportType === 'attendance' ? 'مشاكل الحضور' : 
+                             report.reportType === 'academic' ? 'مشاكل أكاديمية' : 'أخرى' }}
+                        </p>
+                        <p><span class="font-medium">التاريخ:</span> {{ formatDate(report.createdAt) }}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                    <span class="text-xs px-3 py-1 rounded-full font-medium"
+                          :class="[
+                            report.status === 'resolved' ? 'bg-green-100 text-green-800' : 
+                            report.status === 'reviewed' ? 'bg-blue-100 text-blue-800' : 
+                            'bg-yellow-100 text-yellow-800'
+                          ]">
+                      {{ report.status === 'resolved' ? 'تم الحل' : 
+                         report.status === 'reviewed' ? 'تمت المراجعة' : 'قيد المراجعة' }}
+                    </span>
+                    <span class="text-xs px-3 py-1 rounded-full font-medium"
+                          :class="[
+                            report.severity === 'critical' ? 'bg-red-100 text-red-800' : 
+                            report.severity === 'warning' ? 'bg-orange-100 text-orange-800' : 
+                            'bg-blue-100 text-blue-800'
+                          ]">
+                      {{ report.severity === 'critical' ? 'حرج' : 
+                         report.severity === 'warning' ? 'تحذير' : 'عادي' }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <p class="font-medium text-gray-700 mb-2">وصف المشكلة:</p>
+                  <p class="text-gray-600 leading-relaxed">{{ report.description }}</p>
+                </div>
+
+                <div v-if="report.actionTaken" class="mb-4">
+                  <p class="font-medium text-gray-700 mb-2">الإجراء المتخذ من المدرب:</p>
+                  <p class="text-gray-600 leading-relaxed">{{ report.actionTaken }}</p>
+                </div>
+
+                <div v-if="report.adminNotes && report.status !== 'pending'" class="mb-4 p-4 bg-gray-100 rounded-lg">
+                  <p class="font-medium text-gray-700 mb-2">ملاحظات الإدارة:</p>
+                  <p class="text-gray-600 leading-relaxed">{{ report.adminNotes }}</p>
+                  <p class="text-sm text-gray-500 mt-2">
+                    تمت المراجعة بواسطة: {{ report.reviewedBy }} في {{ formatDate(report.reviewedAt) }}
+                  </p>
+                </div>
+
+                <!-- Admin Actions -->
+                <div v-if="report.status === 'pending'" class="border-t pt-4">
+                  <p class="font-medium text-gray-700 mb-3">إجراءات الإدارة:</p>
+                  <div class="flex flex-wrap gap-3">
+                    <button
+                      @click="reviewReport(report.id, 'reviewed', 'تمت مراجعة التبليغ')"
+                      class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2 rtl:space-x-reverse text-sm"
+                    >
+                      <Eye class="w-4 h-4" />
+                      <span>مراجعة</span>
+                    </button>
+                    <button
+                      @click="reviewReport(report.id, 'resolved', 'تم حل المشكلة')"
+                      class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2 rtl:space-x-reverse text-sm"
+                    >
+                      <CheckCircle class="w-4 h-4" />
+                      <span>حل المشكلة</span>
+                    </button>
+                    <button
+                      @click="deleteReport(report.id)"
+                      class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center space-x-2 rtl:space-x-reverse text-sm"
+                    >
+                      <XCircle class="w-4 h-4" />
+                      <span>حذف</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div v-else-if="report.status === 'reviewed'" class="border-t pt-4">
+                  <div class="flex gap-3">
+                    <button
+                      @click="reviewReport(report.id, 'resolved', 'تم حل المشكلة نهائياً')"
+                      class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2 rtl:space-x-reverse text-sm"
+                    >
+                      <CheckCircle class="w-4 h-4" />
+                      <span>حل المشكلة</span>
+                    </button>
+                    <button
+                      @click="deleteReport(report.id)"
+                      class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center space-x-2 rtl:space-x-reverse text-sm"
+                    >
+                      <XCircle class="w-4 h-4" />
+                      <span>حذف</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </AdminSection>
       </div>
 
       <!-- Announcements Management -->
@@ -568,6 +746,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { usePlatformStore } from '../stores/platform'
 import { useWarningsStore } from '../stores/warnings'
+import { useReportsStore } from '../stores/reports'
 import AdminSection from '../components/AdminSection.vue'
 import WarningsModal from '../components/WarningsModal.vue'
 import { 
@@ -584,13 +763,18 @@ import {
   Edit,
   AlertTriangle,
   BarChart3,
-  Settings
+  Settings,
+  FileText,
+  Eye,
+  CheckCircle,
+  XCircle
 } from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const platformStore = usePlatformStore()
 const warningsStore = useWarningsStore()
+const reportsStore = useReportsStore()
 
 const activeTab = ref('overview')
 const showWarnings = ref(false)
@@ -601,7 +785,8 @@ const tabs = [
   { id: 'warnings', name: 'التحذيرات', icon: AlertTriangle },
   { id: 'users', name: 'المستخدمين', icon: UserCog },
   { id: 'videos', name: 'الفيديوهات', icon: Upload },
-  { id: 'classes', name: 'الصفوف', icon: BookOpen }
+  { id: 'classes', name: 'الصفوف', icon: BookOpen },
+  { id: 'student-reports', name: 'تبليغات الطلاب', icon: FileText }
 ]
 
 const newAnnouncement = ref({
@@ -643,6 +828,10 @@ const totalStudents = computed(() => {
 
 const totalVideos = computed(() => {
   return platformStore.getTotalVideosCount
+})
+
+const pendingReportsCount = computed(() => {
+  return reportsStore.getPendingReportsCount()
 })
 
 const unreadWarningsCount = computed(() => {
@@ -830,5 +1019,26 @@ const formatDate = (date) => {
     hour: '2-digit',
     minute: '2-digit'
   })
+}
+
+const reviewReport = (reportId, status, notes = '') => {
+  reportsStore.updateReportStatus(reportId, status, notes, authStore.user.email || authStore.user.username)
+  alert(`تم ${status === 'reviewed' ? 'مراجعة' : 'حل'} التبليغ بنجاح!`)
+}
+
+const deleteReport = (reportId) => {
+  if (confirm('هل أنت متأكد من حذف هذا التبليغ؟')) {
+    reportsStore.deleteReport(reportId)
+    alert('تم حذف التبليغ بنجاح!')
+  }
+}
+
+const getSeverityColor = (severity) => {
+  const colors = {
+    critical: 'border-l-red-500 bg-red-50',
+    warning: 'border-l-orange-500 bg-orange-50',
+    info: 'border-l-blue-500 bg-blue-50'
+  }
+  return colors[severity] || colors.info
 }
 </script>
