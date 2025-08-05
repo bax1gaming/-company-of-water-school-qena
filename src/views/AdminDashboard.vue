@@ -47,19 +47,19 @@
       <!-- Navigation Tabs -->
       <div class="card-enhanced mb-8">
         <div class="border-b border-gray-200">
-          <nav class="flex space-x-8 rtl:space-x-reverse px-6">
+          <nav class="flex flex-wrap gap-2 sm:space-x-8 rtl:space-x-reverse px-4 sm:px-6">
             <button
               v-for="tab in tabs"
               :key="tab.id"
               @click="activeTab = tab.id"
               :class="[
-                'py-4 px-2 border-b-2 font-medium text-sm transition-colors flex items-center space-x-2 rtl:space-x-reverse',
+                'py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors flex items-center space-x-1 sm:space-x-2 rtl:space-x-reverse whitespace-nowrap',
                 activeTab === tab.id
                   ? 'border-purple-500 text-purple-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               ]"
             >
-              <component :is="tab.icon" class="w-5 h-5" />
+              <component :is="tab.icon" class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
               <span>{{ tab.name }}</span>
             </button>
           </nav>
@@ -85,49 +85,49 @@
         <!-- Statistics Cards -->
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div class="card-enhanced p-6 hover-lift">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row items-center sm:justify-between space-y-4 sm:space-y-0">
               <div>
                 <p class="text-sm text-gray-600 font-medium mb-2">إجمالي الطلاب</p>
                 <p class="text-3xl font-bold text-gradient">{{ totalStudents }}</p>
               </div>
-              <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center glow-effect">
-                <Users class="w-7 h-7 text-white" />
+              <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center glow-effect flex-shrink-0">
+                <Users class="w-5 h-5 sm:w-7 sm:h-7 text-white" />
               </div>
             </div>
           </div>
           
           <div class="card-enhanced p-6 hover-lift" style="animation-delay: 0.1s;">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row items-center sm:justify-between space-y-4 sm:space-y-0">
               <div>
                 <p class="text-sm text-gray-600 font-medium mb-2">المدربين</p>
                 <p class="text-3xl font-bold text-gradient">{{ totalTrainers }}</p>
               </div>
-              <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center glow-effect">
-                <UserCheck class="w-7 h-7 text-white" />
+              <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center glow-effect flex-shrink-0">
+                <UserCheck class="w-5 h-5 sm:w-7 sm:h-7 text-white" />
               </div>
             </div>
           </div>
           
           <div class="card-enhanced p-6 hover-lift" style="animation-delay: 0.2s;">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row items-center sm:justify-between space-y-4 sm:space-y-0">
               <div>
                 <p class="text-sm text-gray-600 font-medium mb-2">التبليغات المعلقة</p>
                 <p class="text-3xl font-bold text-gradient">{{ pendingReports }}</p>
               </div>
-              <div class="w-14 h-14 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center glow-effect">
-                <AlertTriangle class="w-7 h-7 text-white" />
+              <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center glow-effect flex-shrink-0">
+                <AlertTriangle class="w-5 h-5 sm:w-7 sm:h-7 text-white" />
               </div>
             </div>
           </div>
           
           <div class="card-enhanced p-6 hover-lift" style="animation-delay: 0.3s;">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row items-center sm:justify-between space-y-4 sm:space-y-0">
               <div>
                 <p class="text-sm text-gray-600 font-medium mb-2">إجمالي الفيديوهات</p>
                 <p class="text-3xl font-bold text-gradient">{{ totalVideos }}</p>
               </div>
-              <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center glow-effect">
-                <Video class="w-7 h-7 text-white" />
+              <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center glow-effect flex-shrink-0">
+                <Video class="w-5 h-5 sm:w-7 sm:h-7 text-white" />
               </div>
             </div>
           </div>
@@ -135,34 +135,34 @@
 
         <!-- Recent Activity -->
         <div class="card-enhanced p-8 hover-lift">
-          <div class="flex items-center space-x-3 rtl:space-x-reverse mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center glow-effect">
-              <Activity class="w-6 h-6 text-white" />
+          <div class="flex flex-col sm:flex-row items-center sm:space-x-3 rtl:space-x-reverse space-y-3 sm:space-y-0 mb-6">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center glow-effect flex-shrink-0">
+              <Activity class="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <h3 class="text-2xl font-bold text-gradient">النشاط الأخير</h3>
           </div>
           
           <div class="space-y-4">
-            <div class="flex items-center space-x-4 rtl:space-x-reverse p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
-              <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                <UserPlus class="w-5 h-5 text-white" />
+            <div class="flex flex-col sm:flex-row items-start sm:items-center sm:space-x-4 rtl:space-x-reverse space-y-3 sm:space-y-0 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
+              <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <UserPlus class="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <div>
+              <div class="flex-1">
                 <p class="font-semibold text-gray-900">انضم طالب جديد</p>
                 <p class="text-sm text-gray-600">محمد أحمد انضم إلى الصف الثاني</p>
               </div>
-              <span class="text-sm text-gray-500 mr-auto">منذ ساعتين</span>
+              <span class="text-sm text-gray-500 sm:mr-auto">منذ ساعتين</span>
             </div>
             
-            <div class="flex items-center space-x-4 rtl:space-x-reverse p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-xl">
-              <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                <Upload class="w-5 h-5 text-white" />
+            <div class="flex flex-col sm:flex-row items-start sm:items-center sm:space-x-4 rtl:space-x-reverse space-y-3 sm:space-y-0 p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-xl">
+              <div class="w-8 h-8 sm:w-10 sm:h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <Upload class="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <div>
+              <div class="flex-1">
                 <p class="font-semibold text-gray-900">فيديو جديد</p>
                 <p class="text-sm text-gray-600">د. محمد أحمد رفع فيديو جديد</p>
               </div>
-              <span class="text-sm text-gray-500 mr-auto">منذ 4 ساعات</span>
+              <span class="text-sm text-gray-500 sm:mr-auto">منذ 4 ساعات</span>
             </div>
           </div>
         </div>
@@ -175,7 +175,7 @@
           <div class="card-enhanced p-6 mb-6">
             <h4 class="text-lg font-semibold text-gray-900 mb-4">ترقية مستخدم</h4>
             <form @submit.prevent="promoteUser" class="space-y-4">
-              <div class="grid md:grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
                     رقم الهاتف أو البريد الإلكتروني
@@ -224,32 +224,32 @@
           <!-- Users List -->
           <div class="card-enhanced p-6">
             <h4 class="text-lg font-semibold text-gray-900 mb-4">قائمة المستخدمين</h4>
-            <div class="overflow-x-auto">
-              <table class="w-full">
+            <div class="overflow-x-auto -mx-6 sm:mx-0">
+              <table class="w-full min-w-full">
                 <thead>
                   <tr class="border-b border-gray-200">
-                    <th class="text-right py-3 px-4 font-semibold text-gray-700">الاسم</th>
-                    <th class="text-right py-3 px-4 font-semibold text-gray-700">البريد الإلكتروني</th>
-                    <th class="text-right py-3 px-4 font-semibold text-gray-700">الهاتف</th>
-                    <th class="text-right py-3 px-4 font-semibold text-gray-700">الصلاحية</th>
-                    <th class="text-right py-3 px-4 font-semibold text-gray-700">الإجراءات</th>
+                    <th class="text-right py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">الاسم</th>
+                    <th class="text-right py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm hidden sm:table-cell">البريد الإلكتروني</th>
+                    <th class="text-right py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">الهاتف</th>
+                    <th class="text-right py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">الصلاحية</th>
+                    <th class="text-right py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="user in mockUsers" :key="user.id" class="border-b border-gray-100 hover:bg-gray-50">
-                    <td class="py-3 px-4">{{ user.name }}</td>
-                    <td class="py-3 px-4">{{ user.email }}</td>
-                    <td class="py-3 px-4">{{ user.phone }}</td>
-                    <td class="py-3 px-4">
+                    <td class="py-3 px-2 sm:px-4 text-xs sm:text-sm">{{ user.name }}</td>
+                    <td class="py-3 px-2 sm:px-4 text-xs sm:text-sm hidden sm:table-cell">{{ user.email }}</td>
+                    <td class="py-3 px-2 sm:px-4 text-xs sm:text-sm">{{ user.phone }}</td>
+                    <td class="py-3 px-2 sm:px-4">
                       <span class="px-2 py-1 rounded-full text-xs font-medium"
                             :class="getRoleClass(user.role)">
                         {{ getRoleText(user.role) }}
                       </span>
                     </td>
-                    <td class="py-3 px-4">
+                    <td class="py-3 px-2 sm:px-4">
                       <button
                         @click="sendWarningToUser(user)"
-                        class="text-orange-600 hover:text-orange-800 text-sm font-medium"
+                        class="text-orange-600 hover:text-orange-800 text-xs sm:text-sm font-medium"
                       >
                         إرسال تحذير
                       </button>
@@ -345,29 +345,29 @@
             <!-- All Reports -->
             <div class="card-enhanced p-6">
               <h4 class="text-lg font-semibold text-gray-900 mb-4">جميع التبليغات</h4>
-              <div class="overflow-x-auto">
-                <table class="w-full">
+              <div class="overflow-x-auto -mx-6 sm:mx-0">
+                <table class="w-full min-w-full">
                   <thead>
                     <tr class="border-b border-gray-200">
-                      <th class="text-right py-3 px-4 font-semibold text-gray-700">العنوان</th>
-                      <th class="text-right py-3 px-4 font-semibold text-gray-700">الطالب</th>
-                      <th class="text-right py-3 px-4 font-semibold text-gray-700">المدرب</th>
-                      <th class="text-right py-3 px-4 font-semibold text-gray-700">الحالة</th>
-                      <th class="text-right py-3 px-4 font-semibold text-gray-700">التاريخ</th>
+                      <th class="text-right py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">العنوان</th>
+                      <th class="text-right py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">الطالب</th>
+                      <th class="text-right py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm hidden sm:table-cell">المدرب</th>
+                      <th class="text-right py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">الحالة</th>
+                      <th class="text-right py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm hidden sm:table-cell">التاريخ</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="report in reportsStore.reports" :key="report.id" class="border-b border-gray-100 hover:bg-gray-50">
-                      <td class="py-3 px-4">{{ report.title }}</td>
-                      <td class="py-3 px-4">{{ report.studentName }}</td>
-                      <td class="py-3 px-4">{{ report.trainerName }}</td>
-                      <td class="py-3 px-4">
+                      <td class="py-3 px-2 sm:px-4 text-xs sm:text-sm">{{ report.title }}</td>
+                      <td class="py-3 px-2 sm:px-4 text-xs sm:text-sm">{{ report.studentName }}</td>
+                      <td class="py-3 px-2 sm:px-4 text-xs sm:text-sm hidden sm:table-cell">{{ report.trainerName }}</td>
+                      <td class="py-3 px-2 sm:px-4">
                         <span class="px-2 py-1 rounded-full text-xs font-medium"
                               :class="getStatusClass(report.status)">
                           {{ getStatusText(report.status) }}
                         </span>
                       </td>
-                      <td class="py-3 px-4">{{ new Date(report.createdAt).toLocaleDateString('ar-EG') }}</td>
+                      <td class="py-3 px-2 sm:px-4 text-xs sm:text-sm hidden sm:table-cell">{{ new Date(report.createdAt).toLocaleDateString('ar-EG') }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -474,7 +474,7 @@
             <!-- System Statistics -->
             <div class="card-enhanced p-6">
               <h4 class="text-lg font-semibold text-gray-900 mb-4">إحصائيات النظام</h4>
-              <div class="grid md:grid-cols-2 gap-6">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
                   <h5 class="font-semibold text-gray-900 mb-2">المستخدمين</h5>
                   <p class="text-2xl font-bold text-blue-600">{{ totalUsers }}</p>
@@ -491,8 +491,8 @@
     </div>
 
     <!-- Warning Modal -->
-    <div v-if="showWarningModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+    <div v-if="showWarningModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-xl p-4 sm:p-6 max-w-md w-full">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">إرسال تحذير</h3>
         <form @submit.prevent="sendWarning">
           <div class="space-y-4">
@@ -533,13 +533,13 @@
             <button
               type="button"
               @click="showWarningModal = false"
-              class="px-4 py-2 text-gray-600 hover:text-gray-800"
+              class="px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
             >
               إلغاء
             </button>
             <button
               type="submit"
-              class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700"
+              class="bg-orange-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-orange-700 text-sm"
             >
               إرسال التحذير
             </button>
