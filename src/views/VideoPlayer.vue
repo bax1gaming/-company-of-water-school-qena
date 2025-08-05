@@ -113,6 +113,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { usePlatformStore } from '../stores/platform'
 import { 
+  Droplets, 
   LogOut, 
   ArrowRight, 
   Play, 

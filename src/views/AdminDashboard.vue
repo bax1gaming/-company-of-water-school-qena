@@ -567,6 +567,7 @@ import { useReportsStore } from '../stores/reports'
 import AdminSection from '../components/AdminSection.vue'
 import WarningsModal from '../components/WarningsModal.vue'
 import { 
+  Shield,
   LogOut,
   Bell,
   Users,

@@ -9,9 +9,7 @@
     <div class="max-w-md w-full space-y-8">
       <div class="text-center relative z-10">
         <div class="mx-auto w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-2xl glow-effect float-animation">
-          <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2c1 0 2 1 2 2 0 1.5-1 3-2 4-1-1-2-2.5-2-4 0-1 1-2 2-2zm0 6c2 0 4 1.5 4 4 0 3-2 6-4 8-2-2-4-5-4-8 0-2.5 2-4 4-4z"/>
-          </svg>
+          <Droplets class="w-12 h-12 text-white" />
         </div>
         <h2 class="text-4xl font-bold text-gradient mb-4">
           {{ isSignup ? 'إنشاء حساب جديد' : 'تسجيل الدخول' }}
@@ -188,6 +186,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { Droplets } from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -334,106 +333,3 @@ const handleSignup = async () => {
   }
 }
 </script>
-
-<style scoped>
-/* Mobile Responsive Styles for Login */
-@media (max-width: 640px) {
-  .min-h-screen {
-    padding: 1rem;
-  }
-  
-  .max-w-md {
-    max-width: 100%;
-  }
-  
-  .w-20.h-20 {
-    width: 4rem;
-    height: 4rem;
-  }
-  
-  .w-12.h-12 {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
-  
-  .text-4xl {
-    font-size: 2rem;
-  }
-  
-  .text-lg {
-    font-size: 1rem;
-  }
-  
-  .p-10 {
-    padding: 1.5rem;
-  }
-  
-  .py-4 {
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-  }
-  
-  .px-6 {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  
-  .text-lg {
-    font-size: 0.875rem;
-  }
-  
-  .space-y-6 > * + * {
-    margin-top: 1rem;
-  }
-  
-  .space-y-4 > * + * {
-    margin-top: 0.75rem;
-  }
-  
-  .space-y-3 > * + * {
-    margin-top: 0.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .w-20.h-20 {
-    width: 3rem;
-    height: 3rem;
-  }
-  
-  .w-12.h-12 {
-    width: 2rem;
-    height: 2rem;
-  }
-  
-  .text-4xl {
-    font-size: 1.75rem;
-  }
-  
-  .text-xl {
-    font-size: 1.125rem;
-  }
-  
-  .p-10 {
-    padding: 1rem;
-  }
-  
-  .p-8 {
-    padding: 1rem;
-  }
-  
-  .py-4 {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
-  
-  .px-6 {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-  
-  .text-sm {
-    font-size: 0.75rem;
-  }
-}
-</style>

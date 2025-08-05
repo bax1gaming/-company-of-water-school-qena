@@ -14,7 +14,7 @@
           <div class="flex items-center space-x-4 rtl:space-x-reverse">
             <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg glow-effect icon-bounce">
               <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2c1 0 2 1 2 2 0 1.5-1 3-2 4-1-1-2-2.5-2-4 0-1 1-2 2-2zm0 6c2 0 4 1.5 4 4 0 3-2 6-4 8-2-2-4-5-4-8 0-2.5 2-4 4-4z"/>
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
               </svg>
             </div>
             <div>
@@ -108,8 +108,8 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div class="flex items-center justify-center space-x-4 rtl:space-x-reverse mb-4">
           <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center glow-effect">
-            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2c1 0 2 1 2 2 0 1.5-1 3-2 4-1-1-2-2.5-2-4 0-1 1-2 2-2zm0 6c2 0 4 1.5 4 4 0 3-2 6-4 8-2-2-4-5-4-8 0-2.5 2-4 4-4z"/>
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
             </svg>
           </div>
           <h4 class="text-xl font-bold">المنصة الرسمية لطلاب مياه الشرب والصرف الصحي بقنا</h4>
