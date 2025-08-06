@@ -1,67 +1,76 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { database } from '../lib/supabase'
 
 export const useReportsStore = defineStore('reports', () => {
-  const reports = ref([
-    {
-      id: 1,
-      studentId: 1,
-      studentName: 'أحمد محمد',
-      studentCode: 'ST001',
-      reportedBy: 'trainer1@example.com',
-      trainerName: 'د. محمد أحمد',
-      reportType: 'behavior', // behavior, attendance, academic
-      severity: 'warning', // info, warning, critical
-      title: 'سلوك غير مناسب في المحاضرة',
-      description: 'الطالب يتحدث بصوت عالي ويقاطع المحاضرة بشكل متكرر',
-      actionTaken: 'تم التنبيه شفهياً',
-      status: 'pending', // pending, reviewed, resolved
-      createdAt: new Date('2024-01-20'),
-      reviewedAt: null,
-      reviewedBy: null,
-      adminNotes: ''
-    },
-    {
-      id: 2,
-      studentId: 2,
-      studentName: 'فاطمة علي',
-      studentCode: 'ST002',
-      reportedBy: 'trainer1@example.com',
-      trainerName: 'د. محمد أحمد',
-      reportType: 'attendance',
-      severity: 'info',
-      title: 'غياب متكرر',
-      description: 'الطالبة غائبة لثلاث محاضرات متتالية بدون عذر',
-      actionTaken: 'تم التواصل مع ولي الأمر',
-      status: 'reviewed',
-      createdAt: new Date('2024-01-18'),
-      reviewedAt: new Date('2024-01-19'),
-      reviewedBy: 'admin@example.com',
-      adminNotes: 'تم التواصل مع الطالبة وحل المشكلة'
-    }
-  ])
+  const reports = ref([])
+  const loading = ref(false)
+  const error = ref(null)
 
-  const addReport = (reportData) => {
-    const newReport = {
-      id: Date.now(),
-      ...reportData,
-      status: 'pending',
-      createdAt: new Date(),
-      reviewedAt: null,
-      reviewedBy: null,
-      adminNotes: ''
+  const getPendingReportsCount = computed(() => {
+    return reports.value.filter(r => r.status === 'pending').length
+  })
+
+  const getReportsByTrainer = computed(() => (trainerId) => {
+    return reports.value.filter(r => r.reported_by === trainerId)
+  })
+
+  const getReportsByStudent = computed(() => (studentId) => {
+    return reports.value.filter(r => r.student_id === studentId)
+  })
+
+  const getReportsByStatus = computed(() => (status) => {
+    return reports.value.filter(r => r.status === status)
+  })
+
+  const loadReports = async () => {
+    loading.value = true
+    try {
+      const result = await database.getReports()
+      if (result.error) {
+        error.value = result.error.message
+      } else {
+        reports.value = result.data || []
+      }
+    } catch (err) {
+      error.value = err.message
+    } finally {
+      loading.value = false
     }
-    reports.value.push(newReport)
-    return newReport
   }
 
-  const updateReportStatus = (reportId, status, adminNotes = '', reviewedBy = '') => {
-    const report = reports.value.find(r => r.id === reportId)
-    if (report) {
-      report.status = status
-      report.adminNotes = adminNotes
-      report.reviewedBy = reviewedBy
-      report.reviewedAt = new Date()
+  const addReport = async (reportData) => {
+    try {
+      const result = await database.addReport(reportData)
+      if (result.error) {
+        error.value = result.error.message
+        return null
+      } else {
+        reports.value.unshift(result.data)
+        return result.data
+      }
+    } catch (err) {
+      error.value = err.message
+      return null
+    }
+  }
+
+  const updateReportStatus = async (reportId, status, adminNotes = '', reviewedBy = '') => {
+    try {
+      const result = await database.updateReportStatus(reportId, status, adminNotes, reviewedBy)
+      if (result.error) {
+        error.value = result.error.message
+        return false
+      } else {
+        const index = reports.value.findIndex(r => r.id === reportId)
+        if (index !== -1) {
+          reports.value[index] = result.data
+        }
+        return true
+      }
+    } catch (err) {
+      error.value = err.message
+      return false
     }
   }
 
@@ -72,30 +81,17 @@ export const useReportsStore = defineStore('reports', () => {
     }
   }
 
-  const getReportsByTrainer = (trainerEmail) => {
-    return reports.value.filter(r => r.reportedBy === trainerEmail)
-  }
-
-  const getReportsByStudent = (studentId) => {
-    return reports.value.filter(r => r.studentId === studentId)
-  }
-
-  const getPendingReportsCount = () => {
-    return reports.value.filter(r => r.status === 'pending').length
-  }
-
-  const getReportsByStatus = (status) => {
-    return reports.value.filter(r => r.status === status)
-  }
-
   return {
     reports,
-    addReport,
-    updateReportStatus,
-    deleteReport,
+    loading,
+    error,
+    getPendingReportsCount,
     getReportsByTrainer,
     getReportsByStudent,
-    getPendingReportsCount,
-    getReportsByStatus
+    getReportsByStatus,
+    loadReports,
+    addReport,
+    updateReportStatus,
+    deleteReport
   }
 })

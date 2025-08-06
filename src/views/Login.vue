@@ -241,21 +241,11 @@ const handleLogin = async () => {
   error.value = ''
 
   try {
-    // التحقق من صحة البيانات المدخلة
-    const isEmail = identifier.value.includes('@')
-    const isPhone = /^[0-9+\-\s()]+$/.test(identifier.value)
-    
-    if (!isEmail && !isPhone) {
-      error.value = 'يرجى إدخال رقم هاتف صحيح أو بريد إلكتروني صحيح'
-      loading.value = false
-      return
-    }
-    
-    const loginSuccess = authStore.loginWithPhoneOrEmail(identifier.value, password.value)
+    const loginSuccess = await authStore.login(identifier.value, password.value)
     
     if (loginSuccess) {
-      const user = authStore.user
-      switch (user.role) {
+      const role = authStore.profile?.role
+      switch (role) {
         case 'student':
           router.push('/student')
           break
@@ -269,7 +259,7 @@ const handleLogin = async () => {
           router.push('/')
       }
     } else {
-      error.value = 'رقم الهاتف أو البريد الإلكتروني أو كلمة المرور غير صحيحة'
+      error.value = authStore.error || 'بيانات تسجيل الدخول غير صحيحة'
     }
   } catch (err) {
     error.value = 'حدث خطأ أثناء تسجيل الدخول'
@@ -284,28 +274,14 @@ const handleSignup = async () => {
   success.value = ''
 
   try {
-    // التحقق من صحة البيانات
-    if (!/^[0-9+\-\s()]+$/.test(signupData.value.phone)) {
-      error.value = 'يرجى إدخال رقم هاتف صحيح'
-      loading.value = false
-      return
-    }
-    
-    if (!signupData.value.email.includes('@')) {
-      error.value = 'يرجى إدخال بريد إلكتروني صحيح'
-      loading.value = false
-      return
-    }
-    
-    const userData = {
-      ...signupData.value,
-      name: `طالب ${signupData.value.phone}`, // اسم افتراضي
-      username: signupData.value.phone, // استخدام رقم الهاتف كاسم مستخدم
-      studentCode: `ST${Date.now().toString().slice(-6)}`, // كود طالب تلقائي
+    const result = await authStore.signup({
+      name: signupData.value.name,
+      phone: signupData.value.phone,
+      email: signupData.value.email,
+      password: signupData.value.password,
+      classId: signupData.value.class,
       className: getClassNameById(signupData.value.class)
-    }
-    
-    const result = authStore.signup(userData)
+    })
     
     if (result.success) {
       success.value = result.message

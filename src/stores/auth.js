@@ -1,197 +1,159 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { auth } from '../lib/supabase'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
-  const isAuthenticated = computed(() => !!user.value)
+  const profile = ref(null)
+  const loading = ref(false)
+  const error = ref(null)
 
-  // Mock users data
-  const mockUsers = [
-    {
-      id: 1,
-      username: 'student1',
-      password: '123456',
-      studentCode: 'ST001',
-      phone: '01234567890',
-      email: 'student1@example.com',
-      role: 'student',
-      name: 'أحمد محمد',
-      class: 'first-general',
-      className: 'الصف الأول - تخصص عام'
-    },
-    {
-      id: 2,
-      username: 'student2',
-      password: '123456',
-      studentCode: 'ST002',
-      phone: '01234567891',
-      email: 'student2@example.com',
-      role: 'student',
-      name: 'فاطمة علي',
-      class: 'second-water',
-      className: 'الصف الثاني - تخصص مياه شرب'
-    },
-    {
-      id: 5,
-      username: 'student3',
-      password: '123456',
-      studentCode: 'ST003',
-      phone: '01234567892',
-      email: 'student3@example.com',
-      role: 'student',
-      name: 'محمد حسن',
-      class: 'second-sewage',
-      className: 'الصف الثاني - تخصص صرف صحي'
-    },
-    {
-      id: 6,
-      username: 'student4',
-      password: '123456',
-      studentCode: 'ST004',
-      phone: '01234567893',
-      email: 'student4@example.com',
-      role: 'student',
-      name: 'سارة أحمد',
-      class: 'third-water',
-      className: 'الصف الثالث - تخصص مياه شرب'
-    },
-    {
-      id: 7,
-      username: 'student5',
-      password: '123456',
-      studentCode: 'ST005',
-      phone: '01234567894',
-      email: 'student5@example.com',
-      role: 'student',
-      name: 'عمر محمود',
-      class: 'third-sewage',
-      className: 'الصف الثالث - تخصص صرف صحي'
-    },
-    {
-      id: 3,
-      username: 'trainer1@example.com',
-      phone: '01111111111',
-      email: 'trainer1@example.com',
-      password: '123456',
-      role: 'trainer',
-      name: 'د. محمد أحمد',
-      specialization: 'مياه الشرب'
-    },
-    {
-      id: 4,
-      username: 'admin@example.com',
-      phone: '01000000000',
-      email: 'admin@example.com',
-      password: '123456',
-      role: 'admin',
-      name: 'مدير المنصة'
-    }
-  ]
+  const isAuthenticated = computed(() => !!user.value && !!profile.value)
 
-  const login = (identifier, password) => {
-    const foundUser = mockUsers.find(u => 
-      (u.username === identifier || 
-       u.studentCode === identifier || 
-       u.phone === identifier || 
-       u.email === identifier) && 
-      u.password === password
-    )
-    if (foundUser) {
-      user.value = { ...foundUser }
-      localStorage.setItem('user', JSON.stringify(foundUser))
-      return true
+  // تسجيل الدخول
+  const login = async (identifier, password) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      let result
+      
+      // التحقق من نوع المعرف (بريد إلكتروني أم رقم هاتف)
+      if (identifier.includes('@')) {
+        result = await auth.signInWithEmail(identifier, password)
+      } else {
+        // البحث عن المستخدم برقم الهاتف أولاً
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('id, email:auth.users(email)')
+          .eq('phone', identifier)
+          .single()
+        
+        if (profileData?.email) {
+          result = await auth.signInWithEmail(profileData.email, password)
+        } else {
+          result = await auth.signInWithPhone(identifier, password)
+        }
+      }
+
+      if (result.error) {
+        error.value = result.error.message
+        return false
+      }
+
+      // الحصول على بيانات المستخدم والملف الشخصي
+      const userData = await auth.getCurrentUser()
+      if (userData.user && userData.profile) {
+        user.value = userData.user
+        profile.value = userData.profile
+        return true
+      }
+
+      error.value = 'فشل في الحصول على بيانات المستخدم'
+      return false
+    } catch (err) {
+      error.value = err.message
+      return false
+    } finally {
+      loading.value = false
     }
-    return false
   }
 
-  const loginWithPhoneOrEmail = (identifier, password) => {
-    const foundUser = mockUsers.find(u => 
-      (u.phone === identifier || u.email === identifier) && 
-      u.password === password
-    )
-    if (foundUser) {
-      user.value = { ...foundUser }
-      localStorage.setItem('user', JSON.stringify(foundUser))
-      return true
+  // إنشاء حساب جديد
+  const signup = async (userData) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const result = await auth.signUp(userData)
+      
+      if (result.error) {
+        error.value = result.error.message
+        return { success: false, message: result.error.message }
+      }
+
+      return { success: true, message: 'تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.' }
+    } catch (err) {
+      error.value = err.message
+      return { success: false, message: err.message }
+    } finally {
+      loading.value = false
     }
-    return false
   }
 
-  const signup = (userData) => {
-    // Check if user already exists
-    const existingUser = mockUsers.find(u => 
-      u.phone === userData.phone || 
-      u.email === userData.email ||
-      u.username === userData.username
-    )
+  // تسجيل الخروج
+  const logout = async () => {
+    loading.value = true
     
-    if (existingUser) {
-      return { success: false, message: 'رقم الهاتف أو البريد الإلكتروني أو اسم المستخدم مستخدم بالفعل' }
+    try {
+      await auth.signOut()
+      user.value = null
+      profile.value = null
+      error.value = null
+    } catch (err) {
+      error.value = err.message
+    } finally {
+      loading.value = false
     }
-
-    const newUser = {
-      id: mockUsers.length + 1,
-      ...userData,
-      role: 'student',
-      studentCode: `ST${Date.now().toString().slice(-6)}`
-    }
-    
-    mockUsers.push(newUser)
-    return { success: true, message: 'تم إنشاء الحساب بنجاح' }
   }
 
-  const promoteUser = (identifier, newRole, additionalData = {}) => {
-    const userIndex = mockUsers.findIndex(u => 
-      u.phone === identifier || 
-      u.email === identifier ||
-      u.username === identifier
-    )
+  // تهيئة المصادقة
+  const initAuth = async () => {
+    loading.value = true
     
-    if (userIndex === -1) {
-      return { success: false, message: 'المستخدم غير موجود' }
+    try {
+      const userData = await auth.getCurrentUser()
+      if (userData.user && userData.profile) {
+        user.value = userData.user
+        profile.value = userData.profile
+      }
+    } catch (err) {
+      console.error('Error initializing auth:', err)
+    } finally {
+      loading.value = false
     }
-    
-    const user = mockUsers[userIndex]
-    
-    if (user.role === newRole) {
-      return { success: false, message: `المستخدم لديه صلاحية ${newRole} بالفعل` }
-    }
-    
-    // Update user role and additional data
-    mockUsers[userIndex] = {
-      ...user,
-      role: newRole,
-      ...additionalData
-    }
-    
-    // Update current user if it's the same user
-    if (user.value && user.value.id === user.id) {
-      user.value = mockUsers[userIndex]
-      localStorage.setItem('user', JSON.stringify(mockUsers[userIndex]))
-    }
-    
-    return { success: true, message: `تم ترقية المستخدم إلى ${newRole} بنجاح` }
-  }
-  const logout = () => {
-    user.value = null
-    localStorage.removeItem('user')
   }
 
-  const initAuth = () => {
-    const savedUser = localStorage.getItem('user')
-    if (savedUser) {
-      user.value = JSON.parse(savedUser)
+  // ترقية المستخدم (للإدارة)
+  const promoteUser = async (identifier, newRole, additionalData = {}) => {
+    try {
+      // البحث عن المستخدم
+      const { data: profiles } = await database.getAllUsers()
+      const targetUser = profiles?.find(p => 
+        p.phone === identifier || 
+        p.email === identifier
+      )
+
+      if (!targetUser) {
+        return { success: false, message: 'المستخدم غير موجود' }
+      }
+
+      if (targetUser.role === newRole) {
+        return { success: false, message: `المستخدم لديه صلاحية ${newRole} بالفعل` }
+      }
+
+      const result = await database.updateUserRole(targetUser.id, newRole, additionalData)
+      
+      if (result.error) {
+        return { success: false, message: result.error.message }
+      }
+
+      return { success: true, message: `تم ترقية المستخدم إلى ${newRole} بنجاح` }
+    } catch (err) {
+      return { success: false, message: err.message }
     }
   }
 
   return {
     user,
+    profile,
+    loading,
+    error,
     isAuthenticated,
     login,
-    loginWithPhoneOrEmail,
     signup,
-    promoteUser,
     logout,
-    initAuth
+    initAuth,
+    promoteUser
   }
 })

@@ -1,47 +1,70 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { database } from '../lib/supabase'
 
 export const useWarningsStore = defineStore('warnings', () => {
-  const warnings = ref([
-    {
-      id: 1,
-      userId: 1,
-      userType: 'student',
-      title: 'تحذير بخصوص الحضور',
-      message: 'لقد تم رصد غيابات متكررة في المحاضرات. يرجى الالتزام بالحضور.',
-      severity: 'warning', // info, warning, error
-      isRead: false,
-      createdAt: new Date('2024-01-20'),
-      createdBy: 'admin@example.com'
-    },
-    {
-      id: 2,
-      userId: 2,
-      userType: 'student',
-      title: 'إشعار هام',
-      message: 'يرجى مراجعة الإدارة لاستكمال الأوراق المطلوبة.',
-      severity: 'info',
-      isRead: true,
-      createdAt: new Date('2024-01-18'),
-      createdBy: 'admin@example.com'
-    }
-  ])
+  const warnings = ref([])
+  const loading = ref(false)
+  const error = ref(null)
 
-  const addWarning = (warningData) => {
-    const newWarning = {
-      id: Date.now(),
-      ...warningData,
-      isRead: false,
-      createdAt: new Date()
+  const getWarningsByUser = computed(() => (userId) => {
+    return warnings.value.filter(w => w.user_id === userId)
+  })
+
+  const getUnreadWarningsCount = computed(() => (userId) => {
+    return warnings.value.filter(w => 
+      w.user_id === userId && !w.is_read
+    ).length
+  })
+
+  const loadWarningsForUser = async (userId) => {
+    loading.value = true
+    try {
+      const result = await database.getWarningsForUser(userId)
+      if (result.error) {
+        error.value = result.error.message
+      } else {
+        warnings.value = result.data || []
+      }
+    } catch (err) {
+      error.value = err.message
+    } finally {
+      loading.value = false
     }
-    warnings.value.push(newWarning)
-    return newWarning
   }
 
-  const markAsRead = (warningId) => {
-    const warning = warnings.value.find(w => w.id === warningId)
-    if (warning) {
-      warning.isRead = true
+  const addWarning = async (warningData) => {
+    try {
+      const result = await database.addWarning(warningData)
+      if (result.error) {
+        error.value = result.error.message
+        return null
+      } else {
+        warnings.value.unshift(result.data)
+        return result.data
+      }
+    } catch (err) {
+      error.value = err.message
+      return null
+    }
+  }
+
+  const markAsRead = async (warningId) => {
+    try {
+      const result = await database.markWarningAsRead(warningId)
+      if (result.error) {
+        error.value = result.error.message
+        return false
+      } else {
+        const index = warnings.value.findIndex(w => w.id === warningId)
+        if (index !== -1) {
+          warnings.value[index].is_read = true
+        }
+        return true
+      }
+    } catch (err) {
+      error.value = err.message
+      return false
     }
   }
 
@@ -52,24 +75,15 @@ export const useWarningsStore = defineStore('warnings', () => {
     }
   }
 
-  const getWarningsByUser = (userId, userType) => {
-    return warnings.value.filter(w => w.userId === userId && w.userType === userType)
-  }
-
-  const getUnreadWarningsCount = (userId, userType) => {
-    return warnings.value.filter(w => 
-      w.userId === userId && 
-      w.userType === userType && 
-      !w.isRead
-    ).length
-  }
-
   return {
     warnings,
+    loading,
+    error,
+    getWarningsByUser,
+    getUnreadWarningsCount,
+    loadWarningsForUser,
     addWarning,
     markAsRead,
-    deleteWarning,
-    getWarningsByUser,
-    getUnreadWarningsCount
+    deleteWarning
   }
 })
