@@ -22,10 +22,10 @@
           <div class="flex items-center space-x-4 rtl:space-x-reverse">
             <button
               @click="showWarnings = true"
-              class="relative text-gray-600 hover:text-purple-600 p-3 rounded-xl hover:bg-purple-50 transition-all duration-300"
+              class="relative text-gray-600 hover:text-purple-600 p-2 sm:p-3 rounded-xl hover:bg-purple-50 transition-all duration-300"
               title="التحذيرات والإشعارات"
             >
-              <Bell class="w-6 h-6" />
+              <Bell class="w-5 h-5 sm:w-6 sm:h-6" />
               <span v-if="pendingReportsCount > 0" 
                     class="notification-badge absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs">
                 {{ pendingReportsCount }}
@@ -33,10 +33,11 @@
             </button>
             <button
               @click="logout"
-              class="btn-gradient-secondary flex items-center space-x-2 rtl:space-x-reverse hover-lift"
+              class="btn-gradient-secondary flex items-center space-x-1 sm:space-x-2 rtl:space-x-reverse hover-lift px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base"
             >
-              <LogOut class="w-5 h-5" />
-              <span>تسجيل الخروج</span>
+              <LogOut class="w-4 h-4 sm:w-5 sm:h-5" />
+              <span class="hidden sm:inline">تسجيل الخروج</span>
+              <span class="sm:hidden">خروج</span>
             </button>
           </div>
         </div>
@@ -47,22 +48,23 @@
       <!-- Navigation Tabs -->
       <div class="card-enhanced mb-8">
         <div class="border-b border-gray-200">
-          <nav class="flex space-x-8 rtl:space-x-reverse px-6">
+          <nav class="flex flex-wrap gap-2 sm:space-x-8 rtl:space-x-reverse px-4 sm:px-6 overflow-x-auto">
             <button
               v-for="tab in tabs"
               :key="tab.id"
               @click="activeTab = tab.id"
               :class="[
-                'py-4 px-2 border-b-2 font-medium text-sm transition-colors flex items-center space-x-2 rtl:space-x-reverse',
+                'py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors flex items-center space-x-1 sm:space-x-2 rtl:space-x-reverse whitespace-nowrap',
                 activeTab === tab.id
                   ? 'border-purple-500 text-purple-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               ]"
             >
-              <component :is="tab.icon" class="w-5 h-5" />
-              <span>{{ tab.name }}</span>
+              <component :is="tab.icon" class="w-4 h-4 sm:w-5 sm:h-5" />
+              <span class="hidden sm:inline">{{ tab.name }}</span>
+              <span class="sm:hidden text-xs">{{ getShortTabName(tab.name) }}</span>
               <span v-if="tab.badge && tab.badge > 0" 
-                    class="notification-badge w-5 h-5 flex items-center justify-center text-xs ml-2">
+                    class="notification-badge w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-xs ml-1 sm:ml-2">
                 {{ tab.badge }}
               </span>
             </button>
@@ -232,7 +234,7 @@
                   <div v-if="report.status === 'pending'" class="flex space-x-2 rtl:space-x-reverse">
                     <button
                       @click="openReportModal(report)"
-                      class="btn-gradient-primary px-4 py-2 text-sm"
+                      class="btn-gradient-primary px-3 py-2 text-xs sm:text-sm"
                     >
                       <span>مراجعة</span>
                     </button>
@@ -252,7 +254,7 @@
             <div class="card-enhanced p-6">
               <h4 class="text-lg font-semibold text-gray-900 mb-4">ترقية مستخدم</h4>
               <form @submit.prevent="promoteUser" class="space-y-4">
-                <div class="grid md:grid-cols-2 gap-4">
+                <div class="grid sm:grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                       رقم الهاتف أو البريد الإلكتروني
@@ -291,7 +293,7 @@
                 
                 <button
                   type="submit"
-                  class="btn-gradient-success px-6 py-2"
+                  class="w-full sm:w-auto btn-gradient-success px-4 sm:px-6 py-2 text-sm sm:text-base"
                 >
                   <span>ترقية المستخدم</span>
                 </button>
@@ -367,7 +369,7 @@
                 </div>
                 <button
                   type="submit"
-                  class="btn-gradient-primary px-6 py-2"
+                  class="w-full sm:w-auto btn-gradient-primary px-4 sm:px-6 py-2 text-sm sm:text-base"
                 >
                   <span>إضافة الإعلان</span>
                 </button>
@@ -464,7 +466,7 @@
                 </div>
                 <button
                   type="submit"
-                  class="btn-gradient-secondary px-6 py-2"
+                  class="w-full sm:w-auto btn-gradient-secondary px-4 sm:px-6 py-2 text-sm sm:text-base"
                 >
                   <span>إرسال التحذير</span>
                 </button>
@@ -532,13 +534,13 @@
                 <button
                   type="button"
                   @click="closeReportModal"
-                  class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  class="px-3 sm:px-4 py-2 text-sm sm:text-base text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  class="btn-gradient-success px-6 py-2"
+                  class="btn-gradient-success px-4 sm:px-6 py-2 text-sm sm:text-base"
                 >
                   <span>حفظ</span>
                 </button>
@@ -823,5 +825,16 @@ const getRoleText = (role) => {
     admin: 'مدير'
   }
   return roleTexts[role] || role
+}
+
+const getShortTabName = (name) => {
+  const shortNames = {
+    'نظرة عامة': 'عامة',
+    'التبليغات': 'تبليغات',
+    'المستخدمين': 'مستخدمين',
+    'الإعلانات': 'إعلانات',
+    'التحذيرات': 'تحذيرات'
+  }
+  return shortNames[name] || name
 }
 </script>
