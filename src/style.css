@@ -169,7 +169,7 @@ body {
 
 /* Enhanced Scrollbar */
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -187,6 +187,32 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--secondary-gradient);
   background-clip: content-box;
+}
+
+/* Mobile Responsive Improvements */
+@media (max-width: 640px) {
+  .card-enhanced {
+    padding: 1.5rem;
+  }
+  
+  .btn-gradient-primary,
+  .btn-gradient-secondary,
+  .btn-gradient-success {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .text-gradient {
+    font-size: 1.5rem;
+  }
+  
+  .glow-effect {
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
+  }
+  
+  .glow-effect:hover {
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+  }
 }
 
 /* Notification Badge */
