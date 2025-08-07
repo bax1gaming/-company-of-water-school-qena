@@ -270,7 +270,7 @@ const toggleMode = () => {
   error.value = ''
   success.value = ''
 }
-const handleLogin = async () => {
+
 const createDemoAccount = async (role) => {
   loading.value = true
   error.value = ''
@@ -321,6 +321,8 @@ const createDemoAccount = async (role) => {
     loading.value = false
   }
 }
+
+const handleLogin = async () => {
   loading.value = true
   error.value = ''
 
