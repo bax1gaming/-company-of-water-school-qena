@@ -1,16 +1,8 @@
 {
-  "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "devCommand": "npm run dev",
+  "framework": "vite",
   "routes": [
-    {
-      "src": "/assets/(.*)",
-      "headers": {
-        "cache-control": "max-age=31536000, immutable"
-      }
-    },
     {
       "handle": "filesystem"
     },
@@ -19,8 +11,13 @@
       "dest": "/index.html"
     }
   ],
-  "env": {
-    "VITE_SUPABASE_URL": "@vite_supabase_url",
-    "VITE_SUPABASE_ANON_KEY": "@vite_supabase_anon_key"
-  }
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        "cache-control": "max-age=31536000, immutable"
+      ]
+    }
+  ]
 }

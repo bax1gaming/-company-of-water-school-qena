@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { auth } from '../lib/supabase'
+import { auth, database } from '../lib/supabase'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
@@ -99,6 +99,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   // تهيئة المصادقة
   const initAuth = async () => {
+    if (loading.value) return // تجنب التهيئة المتعددة
+    
     loading.value = true
     
     try {
@@ -109,6 +111,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
     } catch (err) {
       console.error('Error initializing auth:', err)
+      // لا نعرض خطأ للمستخدم في حالة عدم وجود مصادقة
     } finally {
       loading.value = false
     }

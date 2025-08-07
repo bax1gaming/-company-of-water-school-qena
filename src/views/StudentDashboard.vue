@@ -191,7 +191,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { usePlatformStore } from '../stores/platform'
@@ -214,6 +214,13 @@ const platformStore = usePlatformStore()
 const warningsStore = useWarningsStore()
 
 const showWarnings = ref(false)
+
+// تحميل البيانات عند تحميل المكون
+onMounted(() => {
+  if (platformStore.classes.length === 0) {
+    platformStore.loadAllData()
+  }
+})
 
 // Computed properties
 const availableClasses = computed(() => {
