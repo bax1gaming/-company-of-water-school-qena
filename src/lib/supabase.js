@@ -39,7 +39,7 @@ export const auth = {
       .from('profiles')
       .select('id')
       .eq('phone', phone)
-      .single()
+      .maybeSingle()
     
     if (existingProfile) {
       return { data: null, error: { message: 'رقم الهاتف مسجل مسبقاً' } }
@@ -50,32 +50,36 @@ export const auth = {
       email,
       password,
       options: {
-        emailRedirectTo: null // تعطيل تأكيد البريد الإلكتروني
+        emailRedirectTo: null, // تعطيل تأكيد البريد الإلكتروني
+        data: {
+          name,
+          phone,
+          class_id: classId,
+          class_name: className
+        }
       }
     })
 
     if (authError) return { data: null, error: authError }
 
-    // إنشاء الملف الشخصي
+    // الحصول على الملف الشخصي المُنشأ تلقائياً بواسطة التريجر
     if (authData.user) {
       const studentCode = await generateStudentCode()
       
+      // تحديث الملف الشخصي بالبيانات الإضافية
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .insert({
-          id: authData.user.id,
-          name,
-          phone,
-          role: 'student',
+        .update({
           student_code: studentCode,
           class_id: classId,
           class_name: className
         })
+        .eq('id', authData.user.id)
         .select()
         .single()
 
       if (profileError) {
-        console.error('Error creating profile:', profileError)
+        console.error('Error updating profile:', profileError)
         return { data: null, error: profileError }
       }
 
