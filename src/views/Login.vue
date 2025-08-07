@@ -280,7 +280,7 @@ const createDemoAccount = async (role) => {
     student: {
       name: 'أحمد محمد (تجريبي)',
       phone: '01234567890',
-      email: 'student.demo@example.com',
+      email: 'student.demo@gmail.com',
       password: '123456',
       classId: 'first-general',
       className: 'الصف الأول - تخصص عام'
@@ -288,7 +288,7 @@ const createDemoAccount = async (role) => {
     trainer: {
       name: 'د. محمد أحمد (مدرب تجريبي)',
       phone: '01111111111',
-      email: 'trainer.demo@example.com',
+      email: 'trainer.demo@gmail.com',
       password: '123456',
       classId: 'trainer',
       className: 'مدرب'
@@ -296,7 +296,7 @@ const createDemoAccount = async (role) => {
     admin: {
       name: 'مدير المنصة (تجريبي)',
       phone: '01000000000',
-      email: 'admin.demo@example.com',
+      email: 'admin.demo@gmail.com',
       password: '123456',
       classId: 'admin',
       className: 'مدير'

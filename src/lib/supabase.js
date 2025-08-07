@@ -22,25 +22,12 @@ export const auth = {
 
   // تسجيل الدخول برقم الهاتف (كبريد إلكتروني)
   async signInWithPhone(phone, password) {
-    // البحث عن المستخدم برقم الهاتف أولاً
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('phone', phone)
-      .single()
-    
-    if (profileError || !profileData) {
-      return { data: null, error: { message: 'رقم الهاتف غير مسجل' } }
-    }
-
-    // الحصول على البريد الإلكتروني من جدول المستخدمين
-    const { data: userData, error: userError } = await supabase.auth.admin.getUserById(profileData.id)
-    
-    if (userError || !userData.user) {
-      return { data: null, error: { message: 'خطأ في البحث عن المستخدم' } }
-    }
-
-    return this.signInWithEmail(userData.user.email, password)
+    // استخدام رقم الهاتف كبريد إلكتروني مؤقت للمصادقة
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: phone,
+      password
+    })
+    return { data, error }
   },
 
   // إنشاء حساب جديد
