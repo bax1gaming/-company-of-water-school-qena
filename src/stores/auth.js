@@ -22,22 +22,11 @@ export const useAuthStore = defineStore('auth', () => {
       if (identifier.includes('@')) {
         result = await auth.signInWithEmail(identifier, password)
       } else {
-        // البحث عن المستخدم برقم الهاتف أولاً
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('id, email:auth.users(email)')
-          .eq('phone', identifier)
-          .single()
-        
-        if (profileData?.email) {
-          result = await auth.signInWithEmail(profileData.email, password)
-        } else {
-          result = await auth.signInWithPhone(identifier, password)
-        }
+        result = await auth.signInWithPhone(identifier, password)
       }
 
       if (result.error) {
-        error.value = result.error.message
+        error.value = result.error.message || 'خطأ في تسجيل الدخول'
         return false
       }
 
@@ -49,9 +38,10 @@ export const useAuthStore = defineStore('auth', () => {
         return true
       }
 
-      error.value = 'فشل في الحصول على بيانات المستخدم'
+      error.value = userData.error?.message || 'فشل في الحصول على بيانات المستخدم'
       return false
     } catch (err) {
+      console.error('Login error:', err)
       error.value = err.message
       return false
     } finally {
@@ -72,8 +62,13 @@ export const useAuthStore = defineStore('auth', () => {
         return { success: false, message: result.error.message }
       }
 
-      return { success: true, message: 'تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.' }
+      if (result.data?.user && result.data?.profile) {
+        return { success: true, message: 'تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.' }
+      } else {
+        return { success: false, message: 'تم إنشاء الحساب ولكن فشل في إنشاء الملف الشخصي' }
+      }
     } catch (err) {
+      console.error('Signup error:', err)
       error.value = err.message
       return { success: false, message: err.message }
     } finally {

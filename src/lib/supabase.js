@@ -22,19 +22,49 @@ export const auth = {
 
   // تسجيل الدخول برقم الهاتف (كبريد إلكتروني)
   async signInWithPhone(phone, password) {
-    // تحويل رقم الهاتف إلى بريد إلكتروني مؤقت
-    const email = `${phone}@temp.local`
-    return this.signInWithEmail(email, password)
+    // البحث عن المستخدم برقم الهاتف أولاً
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('phone', phone)
+      .single()
+    
+    if (profileError || !profileData) {
+      return { data: null, error: { message: 'رقم الهاتف غير مسجل' } }
+    }
+
+    // الحصول على البريد الإلكتروني من جدول المستخدمين
+    const { data: userData, error: userError } = await supabase.auth.admin.getUserById(profileData.id)
+    
+    if (userError || !userData.user) {
+      return { data: null, error: { message: 'خطأ في البحث عن المستخدم' } }
+    }
+
+    return this.signInWithEmail(userData.user.email, password)
   },
 
   // إنشاء حساب جديد
   async signUp(userData) {
     const { name, phone, email, password, classId, className } = userData
     
+    // التحقق من عدم وجود رقم الهاتف مسبقاً
+    const { data: existingProfile, error: checkError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('phone', phone)
+      .single()
+    
+    if (existingProfile) {
+      return { data: null, error: { message: 'رقم الهاتف مسجل مسبقاً' } }
+    }
+
     // إنشاء حساب في النظام
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
-      password
+      password,
+      options: {
+        emailRedirectTo: undefined // تعطيل تأكيد البريد الإلكتروني
+      }
     })
 
     if (authError) return { data: null, error: authError }
@@ -58,8 +88,7 @@ export const auth = {
         .single()
 
       if (profileError) {
-        // حذف المستخدم إذا فشل إنشاء الملف الشخصي
-        await supabase.auth.admin.deleteUser(authData.user.id)
+        console.error('Error creating profile:', profileError)
         return { data: null, error: profileError }
       }
 
@@ -87,18 +116,28 @@ export const auth = {
       .eq('id', user.id)
       .single()
 
-    return { user, profile, error: profileError }
+    if (profileError) {
+      console.error('Error fetching profile:', profileError)
+      return { user, profile: null, error: profileError }
+    }
+
+    return { user, profile, error: null }
   }
 }
 
 // Helper function لإنشاء كود طالب
 async function generateStudentCode() {
-  const { data, error } = await supabase.rpc('generate_student_code')
-  if (error) {
-    console.error('Error generating student code:', error)
+  try {
+    const { data, error } = await supabase.rpc('generate_student_code')
+    if (error) {
+      console.error('Error generating student code:', error)
+      return `ST${Date.now().toString().slice(-6)}`
+    }
+    return data
+  } catch (err) {
+    console.error('Error calling generate_student_code function:', err)
     return `ST${Date.now().toString().slice(-6)}`
   }
-  return data
 }
 
 // Database helper functions

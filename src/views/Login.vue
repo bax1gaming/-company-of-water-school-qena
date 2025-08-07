@@ -173,10 +173,44 @@
             <span class="font-bold text-purple-600">مدير:</span>
             <span class="text-gray-700 bg-purple-50 px-3 py-1 rounded-full">admin@example.com / 123456</span>
           </div>
+          <div class="text-xs text-gray-600 mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+            <strong>ملاحظة:</strong> إذا لم تعمل الحسابات التجريبية، يرجى إنشاء حساب جديد أولاً من خلال "إنشاء حساب جديد"
+          </div>
           <div class="text-xs text-gray-600 mt-4 p-3 bg-gray-50 rounded-lg">
             يمكن تسجيل الدخول باستخدام رقم الهاتف أو البريد الإلكتروني
           </div>
         </div>
+      </div>
+
+      <!-- Quick Demo Account Creation -->
+      <div v-if="!isSignup" class="card-enhanced p-6 hover-lift relative z-10">
+        <h4 class="text-lg font-bold text-gradient mb-4">إنشاء حسابات تجريبية سريعة:</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button
+            @click="createDemoAccount('student')"
+            class="btn-gradient-primary py-2 px-4 text-sm"
+            :disabled="loading"
+          >
+            <span>إنشاء حساب طالب</span>
+          </button>
+          <button
+            @click="createDemoAccount('trainer')"
+            class="btn-gradient-success py-2 px-4 text-sm"
+            :disabled="loading"
+          >
+            <span>إنشاء حساب مدرب</span>
+          </button>
+          <button
+            @click="createDemoAccount('admin')"
+            class="btn-gradient-secondary py-2 px-4 text-sm"
+            :disabled="loading"
+          >
+            <span>إنشاء حساب مدير</span>
+          </button>
+        </div>
+        <p class="text-xs text-gray-600 mt-3 text-center">
+          سيتم إنشاء حسابات تجريبية بكلمة مرور: 123456
+        </p>
       </div>
     </div>
   </div>
@@ -237,6 +271,56 @@ const toggleMode = () => {
   success.value = ''
 }
 const handleLogin = async () => {
+const createDemoAccount = async (role) => {
+  loading.value = true
+  error.value = ''
+  success.value = ''
+
+  const demoAccounts = {
+    student: {
+      name: 'أحمد محمد (تجريبي)',
+      phone: '01234567890',
+      email: 'student.demo@example.com',
+      password: '123456',
+      classId: 'first-general',
+      className: 'الصف الأول - تخصص عام'
+    },
+    trainer: {
+      name: 'د. محمد أحمد (مدرب تجريبي)',
+      phone: '01111111111',
+      email: 'trainer.demo@example.com',
+      password: '123456',
+      classId: 'trainer',
+      className: 'مدرب'
+    },
+    admin: {
+      name: 'مدير المنصة (تجريبي)',
+      phone: '01000000000',
+      email: 'admin.demo@example.com',
+      password: '123456',
+      classId: 'admin',
+      className: 'مدير'
+    }
+  }
+
+  try {
+    const accountData = demoAccounts[role]
+    const result = await authStore.signup(accountData)
+    
+    if (result.success) {
+      success.value = `تم إنشاء حساب ${role === 'student' ? 'الطالب' : role === 'trainer' ? 'المدرب' : 'المدير'} التجريبي بنجاح!`
+      setTimeout(() => {
+        success.value = ''
+      }, 3000)
+    } else {
+      error.value = result.message
+    }
+  } catch (err) {
+    error.value = 'حدث خطأ أثناء إنشاء الحساب التجريبي'
+  } finally {
+    loading.value = false
+  }
+}
   loading.value = true
   error.value = ''
 
@@ -262,6 +346,7 @@ const handleLogin = async () => {
       error.value = authStore.error || 'بيانات تسجيل الدخول غير صحيحة'
     }
   } catch (err) {
+    console.error('Login error:', err)
     error.value = 'حدث خطأ أثناء تسجيل الدخول'
   } finally {
     loading.value = false
@@ -303,6 +388,7 @@ const handleSignup = async () => {
       error.value = result.message
     }
   } catch (err) {
+    console.error('Signup error:', err)
     error.value = 'حدث خطأ أثناء إنشاء الحساب'
   } finally {
     loading.value = false
