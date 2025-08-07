@@ -63,7 +63,7 @@ export const auth = {
       email,
       password,
       options: {
-        emailRedirectTo: undefined // تعطيل تأكيد البريد الإلكتروني
+        emailRedirectTo: null // تعطيل تأكيد البريد الإلكتروني
       }
     })
 
