@@ -148,6 +148,8 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (err) {
       console.error('Error initializing auth:', err)
       // لا نعرض خطأ للمستخدم في حالة عدم وجود مصادقة
+      user.value = null
+      profile.value = null
     } finally {
       loading.value = false
     }

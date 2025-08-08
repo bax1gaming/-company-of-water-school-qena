@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>المنصة الرسمية لطلاب مياه الشرب والصرف الصحي بقنا</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com" defer></script>
     <script>
       tailwind.config = {
         theme: {
@@ -16,6 +16,15 @@
           }
         }
       }
+      
+      // إضافة معالج للأخطاء العامة
+      window.addEventListener('error', function(e) {
+        console.error('Global error:', e.error)
+      })
+      
+      window.addEventListener('unhandledrejection', function(e) {
+        console.error('Unhandled promise rejection:', e.reason)
+      })
     </script>
   </head>
   <body>

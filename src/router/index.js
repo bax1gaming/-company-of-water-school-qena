@@ -50,15 +50,21 @@ const routes = [
     name: 'VideoPlayer',
     component: VideoPlayer,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    redirect: '/'
   }
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes
 })
 
 router.beforeEach(async (to, from, next) => {
+  try {
   const authStore = useAuthStore()
   
   // تهيئة المصادقة إذا لم تكن مهيأة بعد
@@ -110,6 +116,10 @@ router.beforeEach(async (to, from, next) => {
   }
   
   next()
+  } catch (error) {
+    console.error('Router navigation error:', error)
+    next('/')
+  }
 })
 
 export default router
