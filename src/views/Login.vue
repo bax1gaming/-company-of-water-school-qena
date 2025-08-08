@@ -280,23 +280,24 @@ const createDemoAccount = async (role) => {
   const demoAccounts = {
     student: {
       name: 'أحمد محمد (تجريبي)',
-      phone: '01234567890', 
       email: 'student@demo.com',
+      phone: '01234567890',
       password: '123456',
       classId: 'first-general',
-      className: 'الصف الأول - تخصص عام'
+      className: 'الصف الأول - تخصص عام',
+      studentCode: 'ST001'
     },
     trainer: {
       name: 'د. محمد أحمد (مدرب تجريبي)',
-      phone: '01111111111',
       email: 'trainer@demo.com',
+      phone: '01111111111',
       password: '123456',
       specialization: 'مياه الشرب'
     },
     admin: {
       name: 'مدير المنصة (تجريبي)',
-      phone: '01000000000',
       email: 'admin@demo.com', 
+      phone: '01000000000',
       password: '123456'
     }
   }

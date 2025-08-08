@@ -11,13 +11,13 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!user.value && !!profile.value)
 
   // تسجيل الدخول
-  const login = async (identifier, password) => {
+  const login = async (email, password) => {
     loading.value = true
     error.value = null
 
     try {
       // استخدام الدالة الموحدة لتسجيل الدخول
-      const result = await auth.signIn(identifier, password)
+      const result = await auth.signIn(email, password)
 
       if (result.error) {
         error.value = result.error.message || 'خطأ في تسجيل الدخول'
