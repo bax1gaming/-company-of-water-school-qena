@@ -22,9 +22,31 @@ export const auth = {
 
   // تسجيل الدخول برقم الهاتف (كبريد إلكتروني)
   async signInWithPhone(phone, password) {
-    // استخدام رقم الهاتف كبريد إلكتروني مؤقت للمصادقة
+    // البحث عن البريد الإلكتروني المرتبط برقم الهاتف
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('phone', phone)
+      .maybeSingle()
+    
+    if (profileError) {
+      return { data: null, error: profileError }
+    }
+    
+    if (!profile) {
+      return { data: null, error: { message: 'رقم الهاتف غير مسجل' } }
+    }
+    
+    // الحصول على بيانات المستخدم من جدول المصادقة
+    const { data: { user }, error: userError } = await supabase.auth.admin.getUserById(profile.id)
+    
+    if (userError || !user) {
+      return { data: null, error: { message: 'خطأ في العثور على بيانات المستخدم' } }
+    }
+    
+    // تسجيل الدخول باستخدام البريد الإلكتروني الفعلي
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: phone,
+      email: user.email,
       password
     })
     return { data, error }
@@ -66,15 +88,17 @@ export const auth = {
     if (authData.user) {
       const studentCode = await generateStudentCode()
       
-      // تحديث الملف الشخصي بالبيانات الإضافية
+      // إنشاء الملف الشخصي بالبيانات الإضافية
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .update({
+        .insert({
+          id: authData.user.id,
+          name,
+          phone,
           student_code: studentCode,
           class_id: classId,
           class_name: className
         })
-        .eq('id', authData.user.id)
         .select()
         .single()
 
