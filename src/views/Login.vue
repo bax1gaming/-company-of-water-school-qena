@@ -21,16 +21,16 @@
         <div class="card-enhanced p-10 space-y-6 hover-lift">
           <!-- Login Form -->
           <div v-if="!isSignup">
-            <label for="identifier" class="block text-sm font-bold text-gray-700 mb-3">
-              رقم الهاتف أو البريد الإلكتروني
+            <label for="email" class="block text-sm font-bold text-gray-700 mb-3">
+              البريد الإلكتروني
             </label>
             <input
-              id="identifier"
-              v-model="identifier"
+              id="email"
+              v-model="email"
               type="email"
               required
               class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
-              placeholder="أدخل رقم الهاتف أو البريد الإلكتروني"
+              placeholder="أدخل البريد الإلكتروني"
             />
           </div>
 
@@ -227,7 +227,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const isSignup = ref(false)
-const identifier = ref('')
+const email = ref('')
 const password = ref('')
 const error = ref('')
 const success = ref('')
@@ -354,7 +354,7 @@ const handleLogin = async () => {
   error.value = ''
 
   try {
-    const loginSuccess = await authStore.login(identifier.value, password.value)
+    const loginSuccess = await authStore.login(email.value, password.value)
     
     if (loginSuccess) {
       const role = authStore.profile?.role

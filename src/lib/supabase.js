@@ -6,26 +6,16 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export const auth = {
-  async signIn(identifier, password) {
-    // Determine if identifier is email or phone
-    const isEmail = identifier && identifier.includes('@');
-    
-    const credentials = {
+  async signIn(email, password) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
       password
-    };
-    
-    if (isEmail) {
-      credentials.email = identifier;
-    } else {
-      credentials.phone = identifier;
-    }
-    
-    const { data, error } = await supabase.auth.signInWithPassword(credentials)
+    })
     return { data, error }
   },
 
   async signUp(credentials) {
-    const { email, password, name, phone, role = 'student', student_code, class_id, class_name, specialization } = credentials;
+    const { email, password, name, phone, role = 'student', studentCode, classId, className, specialization } = credentials;
     const { data, error } = await supabase.auth.signUp({
       email,
       password
@@ -35,12 +25,13 @@ export const auth = {
     if (data?.user && !error) {
       const profileData = {
         id: data.user.id,
+        email,
         name: name || '',
         phone: phone || '',
         role,
-        student_code,
-        class_id,
-        class_name,
+        student_code: studentCode,
+        class_id: classId,
+        class_name: className,
         specialization
       };
       
