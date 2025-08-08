@@ -16,14 +16,8 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      let result
-      
-      // التحقق من نوع المعرف (بريد إلكتروني أم رقم هاتف)
-      if (identifier.includes('@')) {
-        result = await auth.signInWithEmail(identifier, password)
-      } else {
-        result = await auth.signInWithPhone(identifier, password)
-      }
+      // استخدام الدالة الموحدة لتسجيل الدخول
+      const result = await auth.signIn(identifier, password)
 
       if (result.error) {
         error.value = result.error.message || 'خطأ في تسجيل الدخول'

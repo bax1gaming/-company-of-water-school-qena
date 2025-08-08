@@ -22,7 +22,140 @@ export const auth = {
 
   // تسجيل الدخول برقم الهاتف (كبريد إلكتروني)
   async signInWithPhone(phone, password) {
-    // البحث عن البريد الإلكتروني المرتبط برقم الهاتف
+    try {
+      // البحث عن المستخدم برقم الهاتف
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('phone', phone)
+        .maybeSingle()
+      
+      if (profileError) {
+        console.error('Profile lookup error:', profileError)
+        return { data: null, error: profileError }
+      }
+      
+      if (!profile) {
+        return { data: null, error: { message: 'رقم الهاتف غير مسجل' } }
+      }
+
+      // الحصول على بيانات المستخدم من جدول المصادقة
+      const { data: authUsers, error: usersError } = await supabase.auth.admin.listUsers()
+      
+      if (usersError) {
+        console.error('Users lookup error:', usersError)
+        // محاولة تسجيل الدخول مباشرة برقم الهاتف كبريد إلكتروني
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: phone + '@temp.com',
+          password
+        })
+        return { data, error }
+      }
+
+      // البحث عن المستخدم بالـ ID
+      const user = authUsers.users?.find(u => u.id === profile.id)
+      
+      if (!user) {
+        // محاولة تسجيل الدخول مباشرة برقم الهاتف كبريد إلكتروني
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: phone + '@temp.com',
+          password
+        })
+        return { data, error }
+      }
+
+      // تسجيل الدخول باستخدام البريد الإلكتروني الفعلي
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password
+      })
+      return { data, error }
+    } catch (err) {
+      console.error('Phone login error:', err)
+      // محاولة أخيرة: تسجيل الدخول برقم الهاتف كبريد إلكتروني
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: phone + '@temp.com',
+        password
+      })
+      return { data, error }
+    }
+  },
+
+  // تسجيل الدخول العام (يدعم البريد الإلكتروني ورقم الهاتف)
+  async signIn(identifier, password) {
+    // التحقق من نوع المعرف
+    if (identifier.includes('@')) {
+      return this.signInWithEmail(identifier, password)
+    } else {
+      return this.signInWithPhone(identifier, password)
+    }
+  },
+
+  // إنشاء حسابات تجريبية
+  async createDemoAccounts() {
+    const demoAccounts = [
+      {
+        email: 'student@demo.com',
+        password: '123456',
+        userData: {
+          name: 'أحمد محمد (طالب تجريبي)',
+          phone: '01234567890',
+          class_id: 'first-general',
+          class_name: 'الصف الأول - تخصص عام',
+          role: 'student'
+        }
+      },
+      {
+        email: 'trainer@demo.com', 
+        password: '123456',
+        userData: {
+          name: 'د. محمد أحمد (مدرب تجريبي)',
+          phone: '01111111111',
+          specialization: 'مياه الشرب',
+          role: 'trainer'
+        }
+      },
+      {
+        email: 'admin@demo.com',
+        password: '123456', 
+        userData: {
+          name: 'مدير المنصة (تجريبي)',
+          phone: '01000000000',
+          role: 'admin'
+        }
+      }
+    ]
+
+    const results = []
+    for (const account of demoAccounts) {
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email: account.email,
+          password: account.password,
+          options: {
+            emailRedirectTo: null,
+            data: account.userData
+          }
+        })
+        
+        results.push({
+          email: account.email,
+          role: account.userData.role,
+          success: !error,
+          error: error?.message
+        })
+      } catch (err) {
+        results.push({
+          email: account.email,
+          role: account.userData.role,
+          success: false,
+          error: err.message
+        })
+      }
+    }
+    
+    return results
+  },
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id')

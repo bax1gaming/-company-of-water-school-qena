@@ -220,6 +220,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { auth } from '../lib/supabase'
 import { Droplets } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -279,8 +280,8 @@ const createDemoAccount = async (role) => {
   const demoAccounts = {
     student: {
       name: 'أحمد محمد (تجريبي)',
-      phone: '01234567890',
-      email: 'student.demo@gmail.com',
+      phone: '01234567890', 
+      email: 'student@demo.com',
       password: '123456',
       classId: 'first-general',
       className: 'الصف الأول - تخصص عام'
@@ -288,18 +289,15 @@ const createDemoAccount = async (role) => {
     trainer: {
       name: 'د. محمد أحمد (مدرب تجريبي)',
       phone: '01111111111',
-      email: 'trainer.demo@gmail.com',
+      email: 'trainer@demo.com',
       password: '123456',
-      classId: 'trainer',
-      className: 'مدرب'
+      specialization: 'مياه الشرب'
     },
     admin: {
       name: 'مدير المنصة (تجريبي)',
       phone: '01000000000',
-      email: 'admin.demo@gmail.com',
-      password: '123456',
-      classId: 'admin',
-      className: 'مدير'
+      email: 'admin@demo.com', 
+      password: '123456'
     }
   }
 
@@ -322,6 +320,35 @@ const createDemoAccount = async (role) => {
   }
 }
 
+const createAllDemoAccounts = async () => {
+  loading.value = true
+  error.value = ''
+  success.value = ''
+
+  try {
+    const results = await auth.createDemoAccounts()
+    const successCount = results.filter(r => r.success).length
+    const failCount = results.filter(r => !r.success).length
+    
+    if (successCount > 0) {
+      success.value = `تم إنشاء ${successCount} حساب تجريبي بنجاح!`
+      if (failCount > 0) {
+        success.value += ` (${failCount} حساب فشل في الإنشاء - ربما موجود مسبقاً)`
+      }
+    } else {
+      error.value = 'فشل في إنشاء الحسابات التجريبية'
+    }
+    
+    setTimeout(() => {
+      success.value = ''
+      error.value = ''
+    }, 5000)
+  } catch (err) {
+    error.value = 'حدث خطأ أثناء إنشاء الحسابات التجريبية'
+  } finally {
+    loading.value = false
+  }
+}
 const handleLogin = async () => {
   loading.value = true
   error.value = ''
