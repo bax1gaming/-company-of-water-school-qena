@@ -86,21 +86,12 @@ export const auth = {
 
     // الحصول على الملف الشخصي المُنشأ تلقائياً بواسطة التريجر
     if (authData.user) {
-      const studentCode = await generateStudentCode()
-      
-      // إنشاء الملف الشخصي بالبيانات الإضافية
+      // الحصول على الملف الشخصي المُنشأ تلقائياً بواسطة التريجر
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .insert({
-          id: authData.user.id,
-          name,
-          phone,
-          student_code: studentCode,
-          class_id: classId,
-          class_name: className
-        })
-        .select()
-        .single()
+        .select('*')
+        .eq('id', authData.user.id)
+        .maybeSingle()
 
       if (profileError) {
         console.error('Error updating profile:', profileError)
