@@ -6,7 +6,31 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export const auth = {
-  async signIn(email, password) {
+  async signIn(identifier, password) {
+    // Check if identifier is a phone number or email
+    let email = identifier;
+    
+    // If identifier looks like a phone number, get email from profile
+    if (identifier && !identifier.includes('@')) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('phone', identifier)
+        .single();
+      
+      if (profile) {
+        // Get the user's email from auth.users table
+        const { data: { user } } = await supabase.auth.admin.getUserById(profile.id);
+        if (user?.email) {
+          email = user.email;
+        } else {
+          return { data: null, error: { message: 'لم يتم العثور على البريد الإلكتروني للمستخدم' } };
+        }
+      } else {
+        return { data: null, error: { message: 'رقم الهاتف غير مسجل' } };
+      }
+    }
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -14,7 +38,8 @@ export const auth = {
     return { data, error }
   },
 
-  async signUp(email, password) {
+  async signUp(credentials) {
+    const { email, password } = credentials;
     const { data, error } = await supabase.auth.signUp({
       email,
       password
@@ -24,7 +49,19 @@ export const auth = {
 
   async getCurrentUser() {
     const { data: { user }, error } = await supabase.auth.getUser()
-    return { user, error }
+    
+    if (error || !user) {
+      return { user: null, profile: null, error }
+    }
+    
+    // Get user profile
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+    
+    return { user, profile, error: profileError }
   },
 
   async signOut() {
@@ -38,6 +75,16 @@ export const auth = {
 }
 
 export const database = {
+  // Get profile by phone number
+  async getProfileByPhone(phone) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('phone', phone)
+      .single()
+    return { data, error }
+  },
+
   // Profile operations
   async getProfile(userId) {
     const { data, error } = await supabase
