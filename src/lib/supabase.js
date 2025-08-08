@@ -7,43 +7,53 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export const auth = {
   async signIn(identifier, password) {
-    // Check if identifier is a phone number or email
-    let email = identifier;
+    // Determine if identifier is email or phone
+    const isEmail = identifier && identifier.includes('@');
     
-    // If identifier looks like a phone number, get email from profile
-    if (identifier && !identifier.includes('@')) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('phone', identifier)
-        .single();
-      
-      if (profile) {
-        // Get the user's email from auth.users table
-        const { data: { user } } = await supabase.auth.admin.getUserById(profile.id);
-        if (user?.email) {
-          email = user.email;
-        } else {
-          return { data: null, error: { message: 'لم يتم العثور على البريد الإلكتروني للمستخدم' } };
-        }
-      } else {
-        return { data: null, error: { message: 'رقم الهاتف غير مسجل' } };
-      }
+    const credentials = {
+      password
+    };
+    
+    if (isEmail) {
+      credentials.email = identifier;
+    } else {
+      credentials.phone = identifier;
     }
     
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
+    const { data, error } = await supabase.auth.signInWithPassword(credentials)
     return { data, error }
   },
 
   async signUp(credentials) {
-    const { email, password } = credentials;
+    const { email, password, name, phone, role = 'student', student_code, class_id, class_name, specialization } = credentials;
     const { data, error } = await supabase.auth.signUp({
       email,
       password
     })
+    
+    // If signup successful, create profile
+    if (data?.user && !error) {
+      const profileData = {
+        id: data.user.id,
+        name: name || '',
+        phone: phone || '',
+        role,
+        student_code,
+        class_id,
+        class_name,
+        specialization
+      };
+      
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([profileData]);
+      
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        return { data, error: { message: 'تم إنشاء الحساب ولكن فشل في إنشاء الملف الشخصي' } };
+      }
+    }
+    
     return { data, error }
   },
 
@@ -55,13 +65,21 @@ export const auth = {
     }
     
     // Get user profile
-    const { data: profile, error: profileError } = await supabase
+    const { data: profiles, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single()
+      .limit(1)
     
-    return { user, profile, error: profileError }
+    if (profileError) {
+      return { user, profile: null, error: profileError }
+    }
+    
+    if (!profiles || profiles.length === 0) {
+      return { user, profile: null, error: { message: 'لم يتم العثور على الملف الشخصي للمستخدم' } }
+    }
+    
+    return { user, profile: profiles[0], error: null }
   },
 
   async signOut() {
@@ -77,32 +95,46 @@ export const auth = {
 export const database = {
   // Get profile by phone number
   async getProfileByPhone(phone) {
-    const { data, error } = await supabase
+    const { data: profiles, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('phone', phone)
-      .single()
-    return { data, error }
+      .limit(1)
+    
+    if (error) {
+      return { data: null, error }
+    }
+    
+    return { data: profiles && profiles.length > 0 ? profiles[0] : null, error: null }
   },
 
   // Profile operations
   async getProfile(userId) {
-    const { data, error } = await supabase
+    const { data: profiles, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .single()
-    return { data, error }
+      .limit(1)
+    
+    if (error) {
+      return { data: null, error }
+    }
+    
+    return { data: profiles && profiles.length > 0 ? profiles[0] : null, error: null }
   },
 
   async updateProfile(userId, updates) {
-    const { data, error } = await supabase
+    const { data: profiles, error } = await supabase
       .from('profiles')
       .update(updates)
       .eq('id', userId)
       .select()
-      .single()
-    return { data, error }
+    
+    if (error) {
+      return { data: null, error }
+    }
+    
+    return { data: profiles && profiles.length > 0 ? profiles[0] : null, error: null }
   },
 
   async getAllUsers() {
@@ -114,13 +146,21 @@ export const database = {
   },
 
   async updateUserRole(userId, role) {
-    const { data, error } = await supabase
+    const { data: profiles, error } = await supabase
       .from('profiles')
       .update({ role })
       .eq('id', userId)
       .select()
-      .single()
-    return { data, error }
+    
+    if (error) {
+      return { data: null, error }
+    }
+    
+    if (!profiles || profiles.length === 0) {
+      return { data: null, error: { message: 'لم يتم العثور على المستخدم للتحديث' } }
+    }
+    
+    return { data: profiles[0], error: null }
   },
 
   // Classes operations
