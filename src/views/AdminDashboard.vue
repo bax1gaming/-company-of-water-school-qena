@@ -694,7 +694,7 @@ const logout = () => {
 }
 
 const promoteUser = () => {
-  if (!promoteForm.value.identifier || !promoteForm.value.newRole) {
+  if (!promoteForm.value.email || !promoteForm.value.newRole) {
     alert('يرجى ملء جميع الحقول المطلوبة')
     return
   }
@@ -705,14 +705,14 @@ const promoteUser = () => {
   }
 
   const result = authStore.promoteUser(
-    promoteForm.value.identifier,
+    promoteForm.value.email,
     promoteForm.value.newRole,
     additionalData
   )
 
   if (result.success) {
     alert(result.message)
-    promoteForm.value = { identifier: '', newRole: '', specialization: '' }
+    promoteForm.value = { email: '', newRole: '', specialization: '' }
   } else {
     alert(result.message)
   }
