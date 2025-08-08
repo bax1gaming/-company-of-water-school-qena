@@ -26,9 +26,56 @@ export const useAuthStore = defineStore('auth', () => {
 
       // الحصول على بيانات المستخدم والملف الشخصي
       const userData = await auth.getCurrentUser()
-      if (userData.user && userData.profile) {
+      if (userData.user) {
         user.value = userData.user
-        profile.value = userData.profile
+        
+        // Check if profile exists, if not create one
+        if (!userData.profile) {
+          // Check for pending profile data from signup
+          const pendingData = localStorage.getItem('pendingProfileData')
+          if (pendingData) {
+            try {
+              const profileData = JSON.parse(pendingData)
+              const { data: newProfile, error: profileError } = await database.createProfile(userData.user.id, profileData)
+              
+              if (profileError) {
+                console.error('Profile creation error:', profileError)
+                error.value = 'فشل في إنشاء الملف الشخصي'
+                return false
+              }
+              
+              profile.value = newProfile
+              localStorage.removeItem('pendingProfileData')
+            } catch (err) {
+              console.error('Error parsing pending profile data:', err)
+              localStorage.removeItem('pendingProfileData')
+              error.value = 'خطأ في بيانات الملف الشخصي'
+              return false
+            }
+          } else {
+            // Create basic profile if no pending data
+            const basicProfileData = {
+              email: userData.user.email,
+              name: '',
+              phone: '',
+              role: 'student'
+            }
+            
+            const { data: newProfile, error: profileError } = await database.createProfile(userData.user.id, basicProfileData)
+            
+            if (profileError) {
+              console.error('Basic profile creation error:', profileError)
+              error.value = 'فشل في إنشاء الملف الشخصي الأساسي'
+              return false
+            }
+            
+            profile.value = newProfile
+          }
+        } else {
+          profile.value = userData.profile
+        }
+        
+        user.value = userData.user
         return true
       }
 
@@ -56,10 +103,10 @@ export const useAuthStore = defineStore('auth', () => {
         return { success: false, message: result.error.message }
       }
 
-      if (result.data?.user && result.data?.profile) {
+      if (result.data?.user) {
         return { success: true, message: 'تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.' }
       } else {
-        return { success: false, message: 'تم إنشاء الحساب ولكن فشل في إنشاء الملف الشخصي' }
+        return { success: false, message: 'فشل في إنشاء الحساب' }
       }
     } catch (err) {
       console.error('Signup error:', err)

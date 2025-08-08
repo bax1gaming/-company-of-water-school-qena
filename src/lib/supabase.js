@@ -21,10 +21,10 @@ export const auth = {
       password
     })
     
-    // If signup successful, create profile
+    // Store signup data for later profile creation
     if (data?.user && !error) {
-      const profileData = {
-        id: data.user.id,
+      // Store the signup data in localStorage temporarily
+      localStorage.setItem('pendingProfileData', JSON.stringify({
         email,
         name: name || '',
         phone: phone || '',
@@ -33,16 +33,7 @@ export const auth = {
         class_id: classId,
         class_name: className,
         specialization
-      };
-      
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([profileData]);
-      
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        return { data, error: { message: 'تم إنشاء الحساب ولكن فشل في إنشاء الملف الشخصي' } };
-      }
+      }));
     }
     
     return { data, error }
@@ -75,6 +66,8 @@ export const auth = {
 
   async signOut() {
     const { error } = await supabase.auth.signOut()
+    // Clear any pending profile data
+    localStorage.removeItem('pendingProfileData')
     return { error }
   },
 
@@ -84,6 +77,19 @@ export const auth = {
 }
 
 export const database = {
+  // Create profile for authenticated user
+  async createProfile(userId, profileData) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert([{
+        id: userId,
+        ...profileData
+      }])
+      .select()
+      .single()
+    return { data, error }
+  },
+
   // Get profile by phone number
   async getProfileByPhone(phone) {
     const { data: profiles, error } = await supabase
