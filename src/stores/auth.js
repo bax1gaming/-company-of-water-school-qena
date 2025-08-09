@@ -20,7 +20,12 @@ export const useAuthStore = defineStore('auth', () => {
       const result = await auth.signIn(email, password)
 
       if (result.error) {
-        error.value = result.error.message || 'خطأ في تسجيل الدخول'
+        // Handle specific error cases with user-friendly messages
+        if (result.error.message && result.error.message.includes('Email not confirmed')) {
+          error.value = 'البريد الإلكتروني غير مؤكد. يرجى التحقق من بريدك الوارد لتأكيد حسابك.'
+        } else {
+          error.value = result.error.message || 'خطأ في تسجيل الدخول'
+        }
         return false
       }
 
