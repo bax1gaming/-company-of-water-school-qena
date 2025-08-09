@@ -1,9 +1,23 @@
 <template>
   <div class="admin-dashboard">
-    <div class="dashboard-header">
-      <h1>لوحة الإدارة</h1>
-      <p>إدارة النظام والمستخدمين والمحتوى</p>
-    </div>
+    <!-- Header with logout button -->
+    <header class="admin-header">
+      <div class="header-content">
+        <div class="header-left">
+          <h1>لوحة الإدارة</h1>
+          <p>إدارة النظام والمستخدمين والمحتوى</p>
+        </div>
+        <div class="header-right">
+          <div class="admin-info">
+            <span>مرحباً {{ authStore.profile?.name }}</span>
+          </div>
+          <button @click="logout" class="logout-btn">
+            تسجيل الخروج
+          </button>
+        </div>
+      </div>
+    </header>
+
 
     <!-- Statistics Cards -->
     <div class="stats-grid">
@@ -234,9 +248,11 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import supabase from '../lib/supabase'
 
+const router = useRouter()
 const authStore = useAuthStore()
 
 // Reactive data
@@ -475,6 +491,12 @@ const deleteWarning = async (warningId) => {
   }
 }
 
+// Logout function
+const logout = async () => {
+  await authStore.logout()
+  router.push('/')
+}
+
 // Initialize data
 onMounted(async () => {
   loading.value = true
@@ -494,6 +516,56 @@ onMounted(async () => {
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.admin-header {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+  border-radius: 8px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+}
+
+.header-left h1 {
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+}
+
+.header-left p {
+  margin: 0;
+  color: #7f8c8d;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-info {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.logout-btn {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+
+.logout-btn:hover {
+  background: #c0392b;
 }
 
 .dashboard-header {
@@ -729,6 +801,16 @@ th {
     flex-direction: column;
     gap: 1rem;
     align-items: stretch;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .header-right {
+    justify-content: center;
   }
   
   table {
