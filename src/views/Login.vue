@@ -373,7 +373,7 @@ const handleLogin = async () => {
           router.push('/')
       }
     } else {
-      error.value = authStore.error || 'بيانات تسجيل الدخول غير صحيحة'
+      error.value = authStore.error.value || 'بيانات تسجيل الدخول غير صحيحة'
     }
   } catch (err) {
     console.error('Login error:', err)
