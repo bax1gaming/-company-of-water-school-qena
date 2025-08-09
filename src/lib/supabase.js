@@ -22,7 +22,18 @@ export const auth = {
     const { email, password, name, phone, role = 'student', studentCode, classId, className, specialization } = credentials;
     const { data, error } = await supabase.auth.signUp({
       email,
-      password
+      password,
+      options: {
+        data: {
+          name,
+          phone,
+          role,
+          student_code: studentCode,
+          class_id: classId,
+          class_name: className,
+          specialization
+        }
+      }
     })
     
     // Store signup data for later profile creation
