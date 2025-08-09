@@ -23,6 +23,8 @@ export const useAuthStore = defineStore('auth', () => {
         // Handle specific error cases with user-friendly messages
         if (result.error.message && result.error.message.includes('Email not confirmed')) {
           error.value = 'البريد الإلكتروني غير مؤكد. يرجى التحقق من بريدك الوارد لتأكيد حسابك.'
+        } else if (result.error.message && result.error.message.includes('Invalid login credentials')) {
+          error.value = 'بيانات تسجيل الدخول غير صحيحة. يرجى التأكد من البريد الإلكتروني وكلمة المرور.'
         } else {
           error.value = result.error.message || 'خطأ في تسجيل الدخول'
         }
@@ -88,7 +90,7 @@ export const useAuthStore = defineStore('auth', () => {
       return false
     } catch (err) {
       console.error('Login error:', err)
-      error.value = err.message
+      error.value = 'حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.'
       return false
     } finally {
       loading.value = false
