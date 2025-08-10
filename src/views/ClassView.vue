@@ -141,9 +141,7 @@ export default {
       this.$router.push('/student')
     },
     playVideo(video) {
-      const platformStore = usePlatformStore()
-      platformStore.setSelectedVideo(video)
-      this.$router.push('/video-player')
+      this.$router.push(`/video/${video.id}`)
     },
     downloadFile(file) {
       // تنفيذ تحميل الملف

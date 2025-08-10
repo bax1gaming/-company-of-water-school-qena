@@ -35,6 +35,10 @@ export const usePlatformStore = defineStore('platform', () => {
     )
   })
 
+  const getVideoById = computed(() => (id) => {
+    return videos.value.find(video => video.id === id)
+  })
+
   const getTotalVideosCount = computed(() => videos.value.length)
   const getTotalFilesCount = computed(() => files.value.length)
 
@@ -189,6 +193,7 @@ export const usePlatformStore = defineStore('platform', () => {
     getFilesByClass,
     getPracticalVideosByClass,
     getReviewVideosByClass,
+    getVideoById,
     getTotalVideosCount,
     getTotalFilesCount,
     loadClasses,
