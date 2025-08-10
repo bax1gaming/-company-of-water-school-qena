@@ -428,6 +428,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { usePlatformStore } from '../stores/platform'
@@ -500,6 +501,17 @@ const unreadWarningsCount = computed(() => {
 
 const myReports = computed(() => {
   return reportsStore.getReportsByTrainer(authStore.user?.email || authStore.user?.username)
+})
+
+// تحميل البيانات عند تحميل المكون
+onMounted(async () => {
+  // تحميل الصفوف الدراسية إذا لم تكن محملة
+  if (platformStore.classes.length === 0) {
+    await platformStore.loadClasses()
+  }
+  
+  // تحميل باقي البيانات
+  await platformStore.loadAllData()
 })
 
 const logout = () => {

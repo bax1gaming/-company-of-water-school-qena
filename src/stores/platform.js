@@ -58,7 +58,7 @@ export const usePlatformStore = defineStore('platform', () => {
   const loadVideos = async () => {
     loading.value = true
     try {
-      const result = await database.getAllVideos()
+      const result = await database.getVideos()
       if (result.error) {
         error.value = result.error.message
       } else {
@@ -74,17 +74,11 @@ export const usePlatformStore = defineStore('platform', () => {
   const loadFiles = async () => {
     loading.value = true
     try {
-      // نحتاج لتحميل الملفات من جميع الصفوف
-      const classesResult = await database.getClasses()
-      if (classesResult.data) {
-        const allFiles = []
-        for (const cls of classesResult.data) {
-          const filesResult = await database.getFilesByClass(cls.id)
-          if (filesResult.data) {
-            allFiles.push(...filesResult.data)
-          }
-        }
-        files.value = allFiles
+      const result = await database.getFiles()
+      if (result.error) {
+        error.value = result.error.message
+      } else {
+        files.value = result.data || []
       }
     } catch (err) {
       error.value = err.message
