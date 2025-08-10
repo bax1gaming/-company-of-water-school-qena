@@ -78,24 +78,24 @@
       <!-- قسم الملفات والملخصات -->
       <div v-if="activeSection === 'files'" class="files-section">
         <h2>ملفات وملخصات</h2>
-        <div v-if="files.length === 0" class="no-content">
+        <div v-if="classFiles.length === 0" class="no-content">
           <i class="fas fa-file-alt"></i>
           <p>لا توجد ملفات أو ملخصات متاحة حالياً</p>
         </div>
         <div v-else class="files-grid">
           <div 
-            v-for="file in files" 
+            v-for="file in classFiles" 
             :key="file.id"
             @click="downloadFile(file)"
             class="file-card"
           >
             <div class="file-icon">
-              <i :class="getFileIcon(file.type)"></i>
+              <i :class="getFileIcon(file.file_type)"></i>
             </div>
             <div class="file-info">
               <h3>{{ file.title }}</h3>
               <p>{{ file.description }}</p>
-              <span class="file-size">{{ file.size }}</span>
+              <span class="file-size">{{ file.file_size }}</span>
             </div>
           </div>
         </div>
@@ -104,63 +104,86 @@
   </div>
 </template>
 
-<script>
-import { mapState } from 'pinia'
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { usePlatformStore } from '../stores/platform'
 import { useAuthStore } from '../stores/auth'
 
-export default {
-  name: 'ClassView',
-  data() {
-    return {
-      activeSection: 'practical',
-      sections: [
-        { id: 'practical', name: 'فيديوهات عملي', icon: 'fas fa-laptop-code' },
-        { id: 'review', name: 'فيديوهات مراجعة', icon: 'fas fa-redo' },
-        { id: 'files', name: 'ملفات وملخصات', icon: 'fas fa-file-alt' }
-      ]
-    }
-  },
-  computed: {
-    ...mapState(usePlatformStore, ['selectedClass', 'videos', 'files']),
-    practicalVideos() {
-      return this.videos.filter(video => 
-        video.classId === this.selectedClass?.id && 
-        video.category === 'practical'
-      )
-    },
-    reviewVideos() {
-      return this.videos.filter(video => 
-        video.classId === this.selectedClass?.id && 
-        video.category === 'review'
-      )
-    }
-  },
-  methods: {
-    goBack() {
-      this.$router.push('/student')
-    },
-    playVideo(video) {
-      this.$router.push(`/video/${video.id}`)
-    },
-    downloadFile(file) {
-      // تنفيذ تحميل الملف
-      console.log('تحميل الملف:', file.title)
-    },
-    getFileIcon(fileType) {
-      const icons = {
-        pdf: 'fas fa-file-pdf',
-        doc: 'fas fa-file-word',
-        docx: 'fas fa-file-word',
-        ppt: 'fas fa-file-powerpoint',
-        pptx: 'fas fa-file-powerpoint',
-        txt: 'fas fa-file-alt',
-        default: 'fas fa-file'
-      }
-      return icons[fileType] || icons.default
-    }
+const route = useRoute()
+const router = useRouter()
+const platformStore = usePlatformStore()
+const authStore = useAuthStore()
+
+const activeSection = ref('practical')
+const sections = [
+  { id: 'practical', name: 'فيديوهات عملي', icon: 'fas fa-laptop-code' },
+  { id: 'review', name: 'فيديوهات مراجعة', icon: 'fas fa-redo' },
+  { id: 'files', name: 'ملفات وملخصات', icon: 'fas fa-file-alt' }
+]
+
+const selectedClass = computed(() => {
+  return platformStore.getClassById(route.params.classId)
+})
+
+const practicalVideos = computed(() => {
+  return platformStore.videos.filter(video => 
+    video.class_id === route.params.classId && 
+    video.category === 'practical'
+  )
+})
+
+const reviewVideos = computed(() => {
+  return platformStore.videos.filter(video => 
+    video.class_id === route.params.classId && 
+    video.category === 'review'
+  )
+})
+
+const classFiles = computed(() => {
+  return platformStore.files.filter(file => 
+    file.class_id === route.params.classId
+  )
+})
+
+const goBack = () => {
+  router.push('/student')
+}
+
+const playVideo = (video) => {
+  router.push(`/video/${video.id}`)
+}
+
+const downloadFile = (file) => {
+  // تنفيذ تحميل الملف
+  console.log('تحميل الملف:', file.title)
+  if (file.url) {
+    window.open(file.url, '_blank')
   }
 }
+
+const getFileIcon = (fileType) => {
+  const icons = {
+    pdf: 'fas fa-file-pdf',
+    doc: 'fas fa-file-word',
+    docx: 'fas fa-file-word',
+    ppt: 'fas fa-file-powerpoint',
+    pptx: 'fas fa-file-powerpoint',
+    txt: 'fas fa-file-alt',
+    default: 'fas fa-file'
+  }
+  return icons[fileType] || icons.default
+}
+
+onMounted(async () => {
+  // تحميل البيانات إذا لم تكن محملة
+  if (platformStore.videos.length === 0) {
+    await platformStore.loadVideos()
+  }
+  if (platformStore.files.length === 0) {
+    await platformStore.loadFiles()
+  }
+})
 </script>
 
 <style scoped>

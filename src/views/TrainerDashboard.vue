@@ -123,6 +123,16 @@
           </div>
           
           <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">وصف الفيديو</label>
+            <textarea
+              v-model="newVideo.description"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="أدخل وصف مختصر للفيديو"
+            ></textarea>
+          </div>
+          
+          <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">تصنيف الفيديو</label>
             <select
               v-model="newVideo.section"
@@ -459,6 +469,7 @@ const activeTab = ref('overview')
 const showWarnings = ref(false)
 const newVideo = ref({
   title: '',
+  description: '',
   classId: '',
   duration: '',
   section: '',
@@ -523,7 +534,7 @@ const handleFileSelect = (event) => {
   selectedFile.value = event.target.files[0]
 }
 
-const uploadVideo = () => {
+const uploadVideo = async () => {
   if (uploadMethod.value === 'file' && !selectedFile.value) {
     alert('يرجى اختيار ملف فيديو')
     return
@@ -534,22 +545,28 @@ const uploadVideo = () => {
     return
   }
 
-  const video = {
+  const videoData = {
     title: newVideo.value.title,
+    description: newVideo.value.description || '',
+    url: uploadMethod.value === 'url' ? newVideo.value.videoUrl : null,
     duration: newVideo.value.duration,
-    trainer: authStore.user.name,
-    videoUrl: uploadMethod.value === 'url' ? newVideo.value.videoUrl : null,
-    fileName: uploadMethod.value === 'file' ? selectedFile.value?.name : null
+    class_id: newVideo.value.classId,
+    category: newVideo.value.section,
+    uploaded_by: authStore.user.id
   }
 
-  platformStore.addVideo(newVideo.value.classId, video)
+  const success = await platformStore.addVideo(videoData)
   
-  // Reset form
-  newVideo.value = { title: '', classId: '', duration: '', section: '', videoUrl: '' }
-  selectedFile.value = null
-  uploadMethod.value = 'file'
-  
-  alert('تم رفع الفيديو بنجاح!')
+  if (success) {
+    // Reset form
+    newVideo.value = { title: '', description: '', classId: '', duration: '', section: '', videoUrl: '' }
+    selectedFile.value = null
+    uploadMethod.value = 'file'
+    
+    alert('تم رفع الفيديو بنجاح!')
+  } else {
+    alert('حدث خطأ أثناء رفع الفيديو: ' + platformStore.error)
+  }
 }
 
 const viewClass = (classId) => {

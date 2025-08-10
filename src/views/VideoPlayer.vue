@@ -131,7 +131,16 @@ const authStore = useAuthStore()
 const platformStore = usePlatformStore()
 
 const videoData = computed(() => {
-  return platformStore.getVideoById(route.params.videoId)
+  const video = platformStore.getVideoById(route.params.videoId)
+  if (video) {
+    return {
+      ...video,
+      videoUrl: video.url,
+      trainer: 'مدرب المادة',
+      uploadDate: new Date(video.created_at).toLocaleDateString('ar-SA')
+    }
+  }
+  return null
 })
 
 const isValidVideoUrl = (url) => {
