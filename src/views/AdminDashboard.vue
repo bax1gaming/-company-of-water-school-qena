@@ -241,8 +241,303 @@
       </div>
     </div>
 
-    <!-- Modals would go here -->
-    <!-- Add User Modal, Add Class Modal, etc. -->
+    <!-- Add User Modal -->
+    <div v-if="showAddUserModal" class="modal-overlay" @click="closeModal('user')">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>إضافة مستخدم جديد</h3>
+          <button @click="closeModal('user')" class="close-button">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form @submit.prevent="addUser" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">الاسم الكامل</label>
+              <input
+                v-model="newUser.name"
+                type="text"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل الاسم الكامل"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">البريد الإلكتروني</label>
+              <input
+                v-model="newUser.email"
+                type="email"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل البريد الإلكتروني"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">رقم الهاتف</label>
+              <input
+                v-model="newUser.phone"
+                type="tel"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل رقم الهاتف"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">الدور</label>
+              <select
+                v-model="newUser.role"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">اختر الدور</option>
+                <option value="student">طالب</option>
+                <option value="trainer">مدرب</option>
+                <option value="admin">مدير</option>
+              </select>
+            </div>
+            <div v-if="newUser.role === 'student'">
+              <label class="block text-sm font-medium text-gray-700 mb-2">كود الطالب</label>
+              <input
+                v-model="newUser.studentCode"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل كود الطالب"
+              />
+            </div>
+            <div v-if="newUser.role === 'student'">
+              <label class="block text-sm font-medium text-gray-700 mb-2">الصف</label>
+              <select
+                v-model="newUser.classId"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">اختر الصف</option>
+                <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
+              </select>
+            </div>
+            <div class="flex justify-end space-x-3 rtl:space-x-reverse">
+              <button type="button" @click="closeModal('user')" class="btn-secondary">إلغاء</button>
+              <button type="submit" class="btn-primary">إضافة المستخدم</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Class Modal -->
+    <div v-if="showAddClassModal" class="modal-overlay" @click="closeModal('class')">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>إضافة فصل جديد</h3>
+          <button @click="closeModal('class')" class="close-button">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form @submit.prevent="addClass" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">اسم الفصل</label>
+              <input
+                v-model="newClass.name"
+                type="text"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل اسم الفصل"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">وصف الفصل</label>
+              <textarea
+                v-model="newClass.description"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل وصف الفصل"
+              ></textarea>
+            </div>
+            <div class="flex justify-end space-x-3 rtl:space-x-reverse">
+              <button type="button" @click="closeModal('class')" class="btn-secondary">إلغاء</button>
+              <button type="submit" class="btn-primary">إضافة الفصل</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Announcement Modal -->
+    <div v-if="showAddAnnouncementModal" class="modal-overlay" @click="closeModal('announcement')">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>إضافة إعلان جديد</h3>
+          <button @click="closeModal('announcement')" class="close-button">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form @submit.prevent="addAnnouncement" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">عنوان الإعلان</label>
+              <input
+                v-model="newAnnouncement.title"
+                type="text"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل عنوان الإعلان"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">محتوى الإعلان</label>
+              <textarea
+                v-model="newAnnouncement.content"
+                rows="4"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل محتوى الإعلان"
+              ></textarea>
+            </div>
+            <div class="flex justify-end space-x-3 rtl:space-x-reverse">
+              <button type="button" @click="closeModal('announcement')" class="btn-secondary">إلغاء</button>
+              <button type="submit" class="btn-primary">إضافة الإعلان</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Warning Modal -->
+    <div v-if="showAddWarningModal" class="modal-overlay" @click="closeModal('warning')">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>إضافة تحذير جديد</h3>
+          <button @click="closeModal('warning')" class="close-button">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form @submit.prevent="addWarning" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">المستخدم المستهدف</label>
+              <select
+                v-model="newWarning.userId"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">اختر المستخدم</option>
+                <option v-for="user in users" :key="user.id" :value="user.id">
+                  {{ user.name }} ({{ getRoleLabel(user.role) }})
+                </option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">عنوان التحذير</label>
+              <input
+                v-model="newWarning.title"
+                type="text"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل عنوان التحذير"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">رسالة التحذير</label>
+              <textarea
+                v-model="newWarning.message"
+                rows="3"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل رسالة التحذير"
+              ></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">درجة الخطورة</label>
+              <select
+                v-model="newWarning.severity"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">اختر درجة الخطورة</option>
+                <option value="info">معلومات</option>
+                <option value="warning">تحذير</option>
+                <option value="error">خطأ</option>
+              </select>
+            </div>
+            <div class="flex justify-end space-x-3 rtl:space-x-reverse">
+              <button type="button" @click="closeModal('warning')" class="btn-secondary">إلغاء</button>
+              <button type="submit" class="btn-primary">إضافة التحذير</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div v-if="showEditUserModal" class="modal-overlay" @click="closeModal('editUser')">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>تعديل بيانات المستخدم</h3>
+          <button @click="closeModal('editUser')" class="close-button">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form @submit.prevent="updateUser" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">الاسم الكامل</label>
+              <input
+                v-model="editingUser.name"
+                type="text"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل الاسم الكامل"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">البريد الإلكتروني</label>
+              <input
+                v-model="editingUser.email"
+                type="email"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل البريد الإلكتروني"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">رقم الهاتف</label>
+              <input
+                v-model="editingUser.phone"
+                type="tel"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل رقم الهاتف"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">الدور</label>
+              <select
+                v-model="editingUser.role"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="student">طالب</option>
+                <option value="trainer">مدرب</option>
+                <option value="admin">مدير</option>
+              </select>
+            </div>
+            <div v-if="editingUser.role === 'student'">
+              <label class="block text-sm font-medium text-gray-700 mb-2">كود الطالب</label>
+              <input
+                v-model="editingUser.student_code"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="أدخل كود الطالب"
+              />
+            </div>
+            <div v-if="editingUser.role === 'student'">
+              <label class="block text-sm font-medium text-gray-700 mb-2">الصف</label>
+              <select
+                v-model="editingUser.class_id"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">اختر الصف</option>
+                <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
+              </select>
+            </div>
+            <div class="flex justify-end space-x-3 rtl:space-x-reverse">
+              <button type="button" @click="closeModal('editUser')" class="btn-secondary">إلغاء</button>
+              <button type="submit" class="btn-primary">حفظ التغييرات</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -269,6 +564,44 @@ const showAddUserModal = ref(false)
 const showAddClassModal = ref(false)
 const showAddAnnouncementModal = ref(false)
 const showAddWarningModal = ref(false)
+const showEditUserModal = ref(false)
+
+// Form data
+const newUser = ref({
+  name: '',
+  email: '',
+  phone: '',
+  role: '',
+  studentCode: '',
+  classId: ''
+})
+
+const newClass = ref({
+  name: '',
+  description: ''
+})
+
+const newAnnouncement = ref({
+  title: '',
+  content: ''
+})
+
+const newWarning = ref({
+  userId: '',
+  title: '',
+  message: '',
+  severity: ''
+})
+
+const editingUser = ref({
+  id: '',
+  name: '',
+  email: '',
+  phone: '',
+  role: '',
+  student_code: '',
+  class_id: ''
+})
 
 // Tabs configuration
 const tabs = [
@@ -358,6 +691,151 @@ const loadWarnings = async () => {
   }
 }
 
+// Modal functions
+const closeModal = (type) => {
+  switch (type) {
+    case 'user':
+      showAddUserModal.value = false
+      newUser.value = { name: '', email: '', phone: '', role: '', studentCode: '', classId: '' }
+      break
+    case 'class':
+      showAddClassModal.value = false
+      newClass.value = { name: '', description: '' }
+      break
+    case 'announcement':
+      showAddAnnouncementModal.value = false
+      newAnnouncement.value = { title: '', content: '' }
+      break
+    case 'warning':
+      showAddWarningModal.value = false
+      newWarning.value = { userId: '', title: '', message: '', severity: '' }
+      break
+    case 'editUser':
+      showEditUserModal.value = false
+      editingUser.value = { id: '', name: '', email: '', phone: '', role: '', student_code: '', class_id: '' }
+      break
+  }
+}
+
+// CRUD functions
+const addUser = async () => {
+  try {
+    // Create user in Supabase Auth first
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email: newUser.value.email,
+      password: '123456', // Default password
+      email_confirm: true,
+      user_metadata: {
+        name: newUser.value.name,
+        phone: newUser.value.phone,
+        role: newUser.value.role
+      }
+    })
+
+    if (authError) throw authError
+
+    // Create profile
+    const profileData = {
+      id: authData.user.id,
+      name: newUser.value.name,
+      email: newUser.value.email,
+      phone: newUser.value.phone,
+      role: newUser.value.role
+    }
+
+    if (newUser.value.role === 'student') {
+      profileData.student_code = newUser.value.studentCode
+      profileData.class_id = newUser.value.classId
+      profileData.class_name = classes.value.find(c => c.id === newUser.value.classId)?.name
+    }
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert([profileData])
+
+    if (profileError) throw profileError
+
+    await loadUsers()
+    closeModal('user')
+    alert('تم إضافة المستخدم بنجاح!')
+  } catch (error) {
+    console.error('Error adding user:', error)
+    alert('حدث خطأ أثناء إضافة المستخدم: ' + error.message)
+  }
+}
+
+const addClass = async () => {
+  try {
+    const { error } = await supabase
+      .from('classes')
+      .insert([{
+        name: newClass.value.name,
+        description: newClass.value.description
+      }])
+
+    if (error) throw error
+
+    await loadClasses()
+    closeModal('class')
+    alert('تم إضافة الفصل بنجاح!')
+  } catch (error) {
+    console.error('Error adding class:', error)
+    alert('حدث خطأ أثناء إضافة الفصل: ' + error.message)
+  }
+}
+
+const addAnnouncement = async () => {
+  try {
+    const { error } = await supabase
+      .from('announcements')
+      .insert([{
+        title: newAnnouncement.value.title,
+        content: newAnnouncement.value.content,
+        author_id: authStore.user.id,
+        author_name: authStore.profile.name
+      }])
+
+    if (error) throw error
+
+    await loadAnnouncements()
+    closeModal('announcement')
+    alert('تم إضافة الإعلان بنجاح!')
+  } catch (error) {
+    console.error('Error adding announcement:', error)
+    alert('حدث خطأ أثناء إضافة الإعلان: ' + error.message)
+  }
+}
+
+const addWarning = async () => {
+  try {
+    const targetUser = users.value.find(u => u.id === newWarning.value.userId)
+    if (!targetUser) {
+      alert('المستخدم المحدد غير موجود')
+      return
+    }
+
+    const { error } = await supabase
+      .from('warnings')
+      .insert([{
+        user_id: newWarning.value.userId,
+        user_type: targetUser.role,
+        title: newWarning.value.title,
+        message: newWarning.value.message,
+        severity: newWarning.value.severity,
+        created_by: authStore.user.id
+      }])
+
+    if (error) throw error
+
+    await loadWarnings()
+    closeModal('warning')
+    alert('تم إضافة التحذير بنجاح!')
+  } catch (error) {
+    console.error('Error adding warning:', error)
+    alert('حدث خطأ أثناء إضافة التحذير: ' + error.message)
+  }
+}
+
 // Helper functions
 const getRoleLabel = (role) => {
   const labels = {
@@ -408,8 +886,35 @@ const getUserName = (userId) => {
 
 // Action functions
 const editUser = (user) => {
-  // Implementation for editing user
-  console.log('Edit user:', user)
+  editingUser.value = { ...user }
+  showEditUserModal.value = true
+}
+
+const updateUser = async () => {
+  try {
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        name: editingUser.value.name,
+        email: editingUser.value.email,
+        phone: editingUser.value.phone,
+        role: editingUser.value.role,
+        student_code: editingUser.value.student_code,
+        class_id: editingUser.value.class_id,
+        class_name: editingUser.value.class_id ? classes.value.find(c => c.id === editingUser.value.class_id)?.name : null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', editingUser.value.id)
+
+    if (error) throw error
+
+    await loadUsers()
+    closeModal('editUser')
+    alert('تم تحديث بيانات المستخدم بنجاح!')
+  } catch (error) {
+    console.error('Error updating user:', error)
+    alert('حدث خطأ أثناء تحديث المستخدم: ' + error.message)
+  }
 }
 
 const deleteUser = async (userId) => {
@@ -422,8 +927,10 @@ const deleteUser = async (userId) => {
       
       if (error) throw error
       await loadUsers()
+      alert('تم حذف المستخدم بنجاح!')
     } catch (error) {
       console.error('Error deleting user:', error)
+      alert('حدث خطأ أثناء حذف المستخدم: ' + error.message)
     }
   }
 }
@@ -443,8 +950,10 @@ const deleteClass = async (classId) => {
       
       if (error) throw error
       await loadClasses()
+      alert('تم حذف الفصل بنجاح!')
     } catch (error) {
       console.error('Error deleting class:', error)
+      alert('حدث خطأ أثناء حذف الفصل: ' + error.message)
     }
   }
 }
@@ -469,8 +978,10 @@ const deleteAnnouncement = async (announcementId) => {
       
       if (error) throw error
       await loadAnnouncements()
+      alert('تم حذف الإعلان بنجاح!')
     } catch (error) {
       console.error('Error deleting announcement:', error)
+      alert('حدث خطأ أثناء حذف الإعلان: ' + error.message)
     }
   }
 }
@@ -485,8 +996,10 @@ const deleteWarning = async (warningId) => {
       
       if (error) throw error
       await loadWarnings()
+      alert('تم حذف التحذير بنجاح!')
     } catch (error) {
       console.error('Error deleting warning:', error)
+      alert('حدث خطأ أثناء حذف التحذير: ' + error.message)
     }
   }
 }
@@ -669,6 +1182,20 @@ onMounted(async () => {
   background: #2980b9;
 }
 
+.btn-secondary {
+  background: #95a5a6;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-secondary:hover {
+  background: #7f8c8d;
+}
+
 .btn-edit {
   background: #f39c12;
   color: white;
@@ -784,6 +1311,100 @@ th {
   margin-top: 1rem;
 }
 
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  color: #374151;
+}
+
+.modal-body {
+  padding: 1rem;
+}
+
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+.space-x-3 > * + * {
+  margin-left: 0.75rem;
+}
+
+.rtl .space-x-3 > * + * {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
 @media (max-width: 768px) {
   .admin-dashboard {
     padding: 1rem;
@@ -819,6 +1440,11 @@ th {
   
   th, td {
     padding: 0.5rem;
+  }
+  
+  .modal-content {
+    width: 95%;
+    margin: 1rem;
   }
 }
 </style>
