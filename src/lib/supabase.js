@@ -10,54 +10,54 @@ if (!supabaseUrl || !supabaseAnonKey) {
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export const auth = {
-  async signIn(email, password) {
+  async signInWithNationalId(nationalId, loginCode) {
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-    return { data, error }
-  },
-
-  async signUp(credentials) {
-    const { email, password, name, phone, role = 'student', studentCode, classId, className, specialization } = credentials;
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name,
-          phone,
-          role,
-          student_code: studentCode,
-          class_id: classId,
-          class_name: className,
-          specialization
-        }
-      }
+      email: `${nationalId}@temp.com`, // استخدام رقم قومي مؤقت كبريد إلكتروني
+      password: loginCode
     })
     
-    // Store signup data for later profile creation
-    if (data?.user && !error) {
-      // Store the signup data in localStorage temporarily
-      localStorage.setItem('pendingProfileData', JSON.stringify({
-        email,
-        name: name || '',
-        phone: phone || '',
-        role,
-        student_code: studentCode,
-        class_id: classId,
-        class_name: className,
-        specialization
-      }));
+    // إذا فشل تسجيل الدخول التقليدي، نحاول البحث في قاعدة البيانات مباشرة
+    if (error) {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('national_id', nationalId)
+        .eq('login_code', loginCode)
+        .single()
+      
+      if (profileError || !profile) {
+        return { data: null, error: { message: 'رقم القومي أو الكود غير صحيح' } }
+      }
+      
+      // إنشاء جلسة مؤقتة للمستخدم
+      return { 
+        data: { 
+          user: { 
+            id: profile.id, 
+            email: profile.email,
+            name: profile.name 
+          } 
+        }, 
+        profile,
+        error: null 
+      }
     }
     
     return { data, error }
   },
 
+  // إزالة دالة التسجيل - لن تعود مطلوبة
+
   async getCurrentUser() {
     const { data: { user }, error } = await supabase.auth.getUser()
     
     if (error || !user) {
+      // محاولة الحصول على المستخدم من localStorage إذا كان مسجل دخول بالطريقة الجديدة
+      const storedUser = localStorage.getItem('currentUser')
+      if (storedUser) {
+        const userData = JSON.parse(storedUser)
+        return { user: userData.user, profile: userData.profile, error: null }
+      }
       return { user: null, profile: null, error }
     }
     
@@ -81,8 +81,8 @@ export const auth = {
 
   async signOut() {
     const { error } = await supabase.auth.signOut()
-    // Clear any pending profile data
-    localStorage.removeItem('pendingProfileData')
+    // مسح بيانات المستخدم المحفوظة محلياً
+    localStorage.removeItem('currentUser')
     return { error }
   },
 
