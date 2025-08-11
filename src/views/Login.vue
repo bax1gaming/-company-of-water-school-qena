@@ -12,41 +12,116 @@
           <Droplets class="w-12 h-12 text-white" />
         </div>
         <h2 class="text-4xl font-bold text-gradient mb-4">
-          تسجيل الدخول
+          {{ isSignup ? 'إنشاء حساب جديد' : 'تسجيل الدخول' }}
         </h2>
         <p class="mt-2 text-gray-700 font-medium text-lg">المنصة الرسمية لطلاب مياه الشرب والصرف الصحي</p>
       </div>
 
-      <form @submit.prevent="handleLogin()" class="mt-8 space-y-6 relative z-10">
+      <form @submit.prevent="isSignup ? handleSignup() : handleLogin()" class="mt-8 space-y-6 relative z-10">
         <div class="card-enhanced p-10 space-y-6 hover-lift">
-          <div>
-            <label for="nationalId" class="block text-sm font-bold text-gray-700 mb-3">
-              رقم القومي (14 رقم)
+          <!-- Login Form -->
+          <div v-if="!isSignup">
+            <label for="email" class="block text-sm font-bold text-gray-700 mb-3">
+              البريد الإلكتروني
             </label>
             <input
-              id="nationalId"
-              v-model="nationalId"
-              type="text"
-              maxlength="14"
-              pattern="[0-9]{14}"
+              id="email"
+              v-model="email"
+              type="email"
               required
               class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
-              placeholder="أدخل رقم القومي (14 رقم)"
+              placeholder="أدخل البريد الإلكتروني"
             />
           </div>
 
+          <!-- Signup Form -->
+          <div v-if="isSignup" class="space-y-4">
+            <div>
+              <label for="name" class="block text-sm font-bold text-gray-700 mb-3">
+                الاسم الكامل
+              </label>
+              <input
+                id="name"
+                v-model="signupData.name"
+                type="text"
+                required
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
+                placeholder="أدخل الاسم الكامل"
+              />
+            </div>
+
+            <div>
+              <label for="username" class="block text-sm font-bold text-gray-700 mb-3">
+                اسم المستخدم
+              </label>
+              <input
+                id="username"
+                v-model="signupData.username"
+                type="text"
+                required
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
+                placeholder="أدخل اسم المستخدم"
+              />
+            </div>
+
+            <div>
+              <label for="phone" class="block text-sm font-bold text-gray-700 mb-3">
+                رقم الهاتف
+              </label>
+              <input
+                id="phone"
+                v-model="signupData.phone"
+                type="tel"
+                required
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
+                placeholder="أدخل رقم الهاتف"
+              />
+            </div>
+
+            <div>
+              <label for="email" class="block text-sm font-bold text-gray-700 mb-3">
+                البريد الإلكتروني
+              </label>
+              <input
+                id="email"
+                v-model="signupData.email"
+                type="email"
+                required
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
+                placeholder="أدخل البريد الإلكتروني"
+              />
+            </div>
+
+            <div>
+              <label for="class" class="block text-sm font-bold text-gray-700 mb-3">
+                الصف الدراسي
+              </label>
+              <select
+                id="class"
+                v-model="signupData.class"
+                required
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
+              >
+                <option value="">اختر الصف</option>
+                <option value="first-general">الصف الأول - تخصص عام</option>
+                <option value="second-water">الصف الثاني - تخصص مياه شرب</option>
+                <option value="second-sewage">الصف الثاني - تخصص صرف صحي</option>
+                <option value="third-water">الصف الثالث - تخصص مياه شرب</option>
+                <option value="third-sewage">الصف الثالث - تخصص صرف صحي</option>
+              </select>
+            </div>
+          </div>
           <div>
-            <label for="loginCode" class="block text-sm font-bold text-gray-700 mb-3">
-              كود تسجيل الدخول
+            <label for="password" class="block text-sm font-bold text-gray-700 mb-3">
+              كلمة المرور
             </label>
             <input
-              id="loginCode"
-              v-model="loginCode"
+              id="password"
+              v-model="passwordModel"
               type="password"
-              maxlength="10"
               required
               class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 bg-gray-50 hover:bg-white"
-              placeholder="أدخل كود تسجيل الدخول"
+              placeholder="أدخل كلمة المرور"
             />
           </div>
 
@@ -65,66 +140,222 @@
           >
             <span v-if="loading" class="flex items-center justify-center">
               <div class="loading-spinner w-5 h-5 mr-3"></div>
-              جاري تسجيل الدخول...
+              {{ isSignup ? 'جاري إنشاء الحساب...' : 'جاري تسجيل الدخول...' }}
             </span>
-            <span v-else>تسجيل الدخول</span>
+            <span v-else>{{ isSignup ? 'إنشاء حساب' : 'تسجيل الدخول' }}</span>
           </button>
+
+          <div class="text-center">
+            <button
+              type="button"
+              @click="toggleMode"
+              class="text-purple-600 hover:text-purple-800 font-semibold text-sm transition-colors duration-300"
+            >
+              {{ isSignup ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد' }}
+            </button>
+          </div>
         </div>
       </form>
 
       <!-- Demo Accounts -->
-      <div class="card-enhanced p-8 hover-lift relative z-10">
+      <div v-if="!isSignup" class="card-enhanced p-8 hover-lift relative z-10">
         <h3 class="text-xl font-bold text-gradient mb-6">حسابات تجريبية:</h3>
         <div class="space-y-3 text-sm">
           <div class="flex justify-between">
             <span class="font-bold text-blue-600">طالب:</span>
-            <span class="text-gray-700 bg-blue-50 px-3 py-1 rounded-full">12345678901234 / 1234</span>
+            <span class="text-gray-700 bg-blue-50 px-3 py-1 rounded-full">01234567890 / 123456</span>
           </div>
           <div class="flex justify-between">
             <span class="font-bold text-green-600">مدرب:</span>
-            <span class="text-gray-700 bg-green-50 px-3 py-1 rounded-full">98765432109876 / 5678</span>
+            <span class="text-gray-700 bg-green-50 px-3 py-1 rounded-full">trainer1@example.com / 123456</span>
           </div>
           <div class="flex justify-between">
             <span class="font-bold text-purple-600">مدير:</span>
-            <span class="text-gray-700 bg-purple-50 px-3 py-1 rounded-full">11111111111111 / 0000</span>
+            <span class="text-gray-700 bg-purple-50 px-3 py-1 rounded-full">admin@example.com / 123456</span>
+          </div>
+          <div class="text-xs text-gray-600 mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+            <strong>ملاحظة:</strong> إذا لم تعمل الحسابات التجريبية، يرجى إنشاء حساب جديد أولاً من خلال "إنشاء حساب جديد"
           </div>
           <div class="text-xs text-gray-600 mt-4 p-3 bg-gray-50 rounded-lg">
-            استخدم رقم القومي وكود تسجيل الدخول للوصول للمنصة
+            يمكن تسجيل الدخول باستخدام رقم الهاتف أو البريد الإلكتروني
           </div>
         </div>
+      </div>
+
+      <!-- Quick Demo Account Creation -->
+      <div v-if="!isSignup" class="card-enhanced p-6 hover-lift relative z-10">
+        <h4 class="text-lg font-bold text-gradient mb-4">إنشاء حسابات تجريبية سريعة:</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button
+            @click="createDemoAccount('student')"
+            class="btn-gradient-primary py-2 px-4 text-sm"
+            :disabled="loading"
+          >
+            <span>إنشاء حساب طالب</span>
+          </button>
+          <button
+            @click="createDemoAccount('trainer')"
+            class="btn-gradient-success py-2 px-4 text-sm"
+            :disabled="loading"
+          >
+            <span>إنشاء حساب مدرب</span>
+          </button>
+          <button
+            @click="createDemoAccount('admin')"
+            class="btn-gradient-secondary py-2 px-4 text-sm"
+            :disabled="loading"
+          >
+            <span>إنشاء حساب مدير</span>
+          </button>
+        </div>
+        <p class="text-xs text-gray-600 mt-3 text-center">
+          سيتم إنشاء حسابات تجريبية بكلمة مرور: 123456
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { auth } from '../lib/supabase'
 import { Droplets } from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-const nationalId = ref('')
-const loginCode = ref('')
+const isSignup = ref(false)
+const email = ref('')
+const password = ref('')
 const error = ref('')
 const success = ref('')
 const loading = ref(false)
 
+const signupData = ref({
+  name: '',
+  username: '',
+  phone: '',
+  email: '',
+  class: '',
+  password: ''
+})
+
+const passwordModel = computed({
+  get() {
+    return isSignup.value ? signupData.value.password : password.value
+  },
+  set(value) {
+    if (isSignup.value) {
+      signupData.value.password = value
+    } else {
+      password.value = value
+    }
+  }
+})
+
+const getClassNameById = (classId) => {
+  const classNames = {
+    'first-general': 'الصف الأول - تخصص عام',
+    'second-water': 'الصف الثاني - تخصص مياه شرب',
+    'second-sewage': 'الصف الثاني - تخصص صرف صحي',
+    'third-water': 'الصف الثالث - تخصص مياه شرب',
+    'third-sewage': 'الصف الثالث - تخصص صرف صحي'
+  }
+  return classNames[classId] || ''
+}
+
+const toggleMode = () => {
+  isSignup.value = !isSignup.value
+  error.value = ''
+  success.value = ''
+}
+
+const createDemoAccount = async (role) => {
+  loading.value = true
+  error.value = ''
+  success.value = ''
+
+  const demoAccounts = {
+    student: {
+      name: 'أحمد محمد (تجريبي)',
+      email: 'student@demo.com',
+      phone: '01234567890',
+      password: '123456',
+      classId: 'first-general',
+      className: 'الصف الأول - تخصص عام',
+      studentCode: 'ST001'
+    },
+    trainer: {
+      name: 'د. محمد أحمد (مدرب تجريبي)',
+      email: 'trainer@demo.com',
+      phone: '01111111111',
+      password: '123456',
+      specialization: 'مياه الشرب'
+    },
+    admin: {
+      name: 'مدير المنصة (تجريبي)',
+      email: 'admin@demo.com', 
+      phone: '01000000000',
+      password: '123456'
+    }
+  }
+
+  try {
+    const accountData = demoAccounts[role]
+    const result = await authStore.signup(accountData)
+    
+    if (result.success) {
+      success.value = `تم إنشاء حساب ${role === 'student' ? 'الطالب' : role === 'trainer' ? 'المدرب' : 'المدير'} التجريبي بنجاح!`
+      setTimeout(() => {
+        success.value = ''
+      }, 3000)
+    } else {
+      error.value = result.message
+    }
+  } catch (err) {
+    error.value = 'حدث خطأ أثناء إنشاء الحساب التجريبي'
+  } finally {
+    loading.value = false
+  }
+}
+
+const createAllDemoAccounts = async () => {
+  loading.value = true
+  error.value = ''
+  success.value = ''
+
+  try {
+    const results = await auth.createDemoAccounts()
+    const successCount = results.filter(r => r.success).length
+    const failCount = results.filter(r => !r.success).length
+    
+    if (successCount > 0) {
+      success.value = `تم إنشاء ${successCount} حساب تجريبي بنجاح!`
+      if (failCount > 0) {
+        success.value += ` (${failCount} حساب فشل في الإنشاء - ربما موجود مسبقاً)`
+      }
+    } else {
+      error.value = 'فشل في إنشاء الحسابات التجريبية'
+    }
+    
+    setTimeout(() => {
+      success.value = ''
+      error.value = ''
+    }, 5000)
+  } catch (err) {
+    error.value = 'حدث خطأ أثناء إنشاء الحسابات التجريبية'
+  } finally {
+    loading.value = false
+  }
+}
 const handleLogin = async () => {
   loading.value = true
   error.value = ''
 
-  // التحقق من صحة رقم القومي (14 رقم)
-  if (nationalId.value.length !== 14 || !/^\d{14}$/.test(nationalId.value)) {
-    error.value = 'رقم القومي يجب أن يكون 14 رقم'
-    loading.value = false
-    return
-  }
-
   try {
-    const loginSuccess = await authStore.login(nationalId.value, loginCode.value)
+    const loginSuccess = await authStore.login(email.value, password.value)
     
     if (loginSuccess) {
       const role = authStore.profile?.role
@@ -142,11 +373,53 @@ const handleLogin = async () => {
           router.push('/')
       }
     } else {
-      error.value = authStore.error || 'رقم القومي أو الكود غير صحيح'
+      error.value = authStore.error || 'بيانات تسجيل الدخول غير صحيحة'
     }
   } catch (err) {
     console.error('Login error:', err)
     error.value = 'حدث خطأ أثناء تسجيل الدخول'
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleSignup = async () => {
+  loading.value = true
+  error.value = ''
+  success.value = ''
+
+  try {
+    const result = await authStore.signup({
+      name: signupData.value.name,
+      phone: signupData.value.phone,
+      email: signupData.value.email,
+      password: signupData.value.password,
+      classId: signupData.value.class,
+      className: getClassNameById(signupData.value.class)
+    })
+    
+    if (result.success) {
+      success.value = result.message
+      // Reset form
+      signupData.value = {
+        name: '',
+        username: '',
+        phone: '',
+        email: '',
+        class: '',
+        password: ''
+      }
+      // Switch to login mode after 2 seconds
+      setTimeout(() => {
+        isSignup.value = false
+        success.value = ''
+      }, 2000)
+    } else {
+      error.value = result.message
+    }
+  } catch (err) {
+    console.error('Signup error:', err)
+    error.value = 'حدث خطأ أثناء إنشاء الحساب'
   } finally {
     loading.value = false
   }

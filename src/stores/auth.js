@@ -11,33 +11,82 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!user.value && !!profile.value)
 
   // تسجيل الدخول
-  const login = async (nationalId, loginCode) => {
+  const login = async (email, password) => {
     loading.value = true
     error.value = null
 
     try {
-      // استخدام الدالة الجديدة لتسجيل الدخول برقم القومي والكود
-      const result = await auth.signInWithNationalId(nationalId, loginCode)
+      // استخدام الدالة الموحدة لتسجيل الدخول
+      const result = await auth.signIn(email, password)
 
       if (result.error) {
-        error.value = result.error.message || 'رقم القومي أو الكود غير صحيح'
+        // Handle specific error cases with user-friendly messages
+        if (result.error.message && result.error.message.includes('Email not confirmed')) {
+          error.value = 'البريد الإلكتروني غير مؤكد. يرجى التحقق من بريدك الوارد لتأكيد حسابك.'
+        } else if (result.error.message && result.error.message.includes('Invalid login credentials')) {
+          error.value = 'بيانات تسجيل الدخول غير صحيحة. يرجى التأكد من البريد الإلكتروني وكلمة المرور.'
+        } else {
+          error.value = result.error.message || 'خطأ في تسجيل الدخول'
+        }
         return false
       }
 
-      if (result.data?.user) {
-        user.value = result.data.user
-        profile.value = result.profile
+      // الحصول على بيانات المستخدم والملف الشخصي
+      const userData = await auth.getCurrentUser()
+      if (userData.user) {
+        user.value = userData.user
         
-        // حفظ بيانات المستخدم محلياً للجلسات المستقبلية
-        localStorage.setItem('currentUser', JSON.stringify({
-          user: result.data.user,
-          profile: result.profile
-        }))
+        // Check if profile exists, if not create one
+        if (!userData.profile) {
+          // Check for pending profile data from signup
+          const pendingData = localStorage.getItem('pendingProfileData')
+          if (pendingData) {
+            try {
+              const profileData = JSON.parse(pendingData)
+              const { data: newProfile, error: profileError } = await database.createProfile(userData.user.id, profileData)
+              
+              if (profileError) {
+                console.error('Profile creation error:', profileError)
+                error.value = 'فشل في إنشاء الملف الشخصي'
+                return false
+              }
+              
+              profile.value = newProfile
+              localStorage.removeItem('pendingProfileData')
+            } catch (err) {
+              console.error('Error parsing pending profile data:', err)
+              localStorage.removeItem('pendingProfileData')
+              error.value = 'خطأ في بيانات الملف الشخصي'
+              return false
+            }
+          } else {
+            // Create basic profile if no pending data
+            const basicProfileData = {
+              email: userData.user.email,
+              name: '',
+              phone: '',
+              role: 'student'
+            }
+            
+            const { data: newProfile, error: profileError } = await database.createProfile(userData.user.id, basicProfileData)
+            
+            if (profileError) {
+              console.error('Basic profile creation error:', profileError)
+              error.value = 'فشل في إنشاء الملف الشخصي الأساسي'
+              return false
+            }
+            
+            profile.value = newProfile
+          }
+        } else {
+          profile.value = userData.profile
+        }
         
+        user.value = userData.user
         return true
       }
 
-      error.value = 'فشل في تسجيل الدخول'
+      error.value = userData.error?.message || 'فشل في الحصول على بيانات المستخدم'
       return false
     } catch (err) {
       console.error('Login error:', err)
@@ -48,7 +97,32 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // إزالة دالة التسجيل
+  // إنشاء حساب جديد
+  const signup = async (userData) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const result = await auth.signUp(userData)
+      
+      if (result.error) {
+        error.value = result.error.message
+        return { success: false, message: result.error.message }
+      }
+
+      if (result.data?.user) {
+        return { success: true, message: 'تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.' }
+      } else {
+        return { success: false, message: 'فشل في إنشاء الحساب' }
+      }
+    } catch (err) {
+      console.error('Signup error:', err)
+      error.value = err.message
+      return { success: false, message: err.message }
+    } finally {
+      loading.value = false
+    }
+  }
 
   // تسجيل الخروج
   const logout = async () => {
@@ -59,7 +133,6 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = null
       profile.value = null
       error.value = null
-      localStorage.removeItem('currentUser')
     } catch (err) {
       error.value = err.message
     } finally {
@@ -74,19 +147,10 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     
     try {
-      // محاولة الحصول على المستخدم من Supabase أولاً
       const userData = await auth.getCurrentUser()
       if (userData.user && userData.profile) {
         user.value = userData.user
         profile.value = userData.profile
-      } else {
-        // محاولة الحصول على المستخدم من التخزين المحلي
-        const storedUser = localStorage.getItem('currentUser')
-        if (storedUser) {
-          const parsedUser = JSON.parse(storedUser)
-          user.value = parsedUser.user
-          profile.value = parsedUser.profile
-        }
       }
     } catch (err) {
       console.error('Error initializing auth:', err)
@@ -135,6 +199,7 @@ export const useAuthStore = defineStore('auth', () => {
     error,
     isAuthenticated,
     login,
+    signup,
     logout,
     initAuth,
     promoteUser
