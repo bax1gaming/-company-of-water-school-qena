@@ -48,6 +48,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // إزالة دالة التسجيل
 
   // تسجيل الخروج
   const logout = async () => {

@@ -88,7 +88,7 @@
             <span class="font-bold text-purple-600">مدير:</span>
             <span class="text-gray-700 bg-purple-50 px-3 py-1 rounded-full">11111111111111 / 0000</span>
           </div>
-              استخدم الرقم القومي (14 رقم) وكود تسجيل الدخول للوصول للمنصة. البيانات محفوظة بشكل آمن في قاعدة البيانات.
+          <div class="text-xs text-gray-600 mt-4 p-3 bg-gray-50 rounded-lg">
             استخدم رقم القومي وكود تسجيل الدخول للوصول للمنصة
           </div>
         </div>

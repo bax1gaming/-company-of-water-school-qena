@@ -11,54 +11,42 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export const auth = {
   async signInWithNationalId(nationalId, loginCode) {
-    try {
-      // استخدام الدالة الجديدة للتحقق من بيانات تسجيل الدخول
-      const { data: loginResult, error: loginError } = await supabase
-        .rpc('verify_login_credentials', {
-          p_national_id: nationalId,
-          p_login_code: loginCode
-        })
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: `${nationalId}@temp.com`, // استخدام رقم قومي مؤقت كبريد إلكتروني
+      password: loginCode
+    })
+    
+    // إذا فشل تسجيل الدخول التقليدي، نحاول البحث في قاعدة البيانات مباشرة
+    if (error) {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('national_id', nationalId)
+        .eq('login_code', loginCode)
+        .single()
       
-      if (loginError) {
-        return { data: null, error: { message: 'حدث خطأ في التحقق من البيانات' } }
-      }
-      
-      if (!loginResult || loginResult.length === 0) {
+      if (profileError || !profile) {
         return { data: null, error: { message: 'رقم القومي أو الكود غير صحيح' } }
       }
-      
-      const profile = loginResult[0]
       
       // إنشاء جلسة مؤقتة للمستخدم
       return { 
         data: { 
           user: { 
-            id: profile.user_id, 
-            email: profile.user_email,
-            name: profile.user_name,
-            phone: profile.user_phone,
-            studentCode: profile.student_code,
-            className: profile.class_name
+            id: profile.id, 
+            email: profile.email,
+            name: profile.name 
           } 
         }, 
-        profile: {
-          id: profile.user_id,
-          name: profile.user_name,
-          email: profile.user_email,
-          phone: profile.user_phone,
-          role: profile.user_role,
-          student_code: profile.student_code,
-          class_name: profile.class_name,
-          national_id: nationalId
-        },
+        profile,
         error: null 
       }
-    } catch (err) {
-      console.error('Login error:', err)
-      return { data: null, error: { message: 'حدث خطأ أثناء تسجيل الدخول' } }
     }
+    
+    return { data, error }
   },
 
+  // إزالة دالة التسجيل - لن تعود مطلوبة
 
   async getCurrentUser() {
     const { data: { user }, error } = await supabase.auth.getUser()
@@ -123,21 +111,6 @@ export const database = {
       .from('profiles')
       .select('*')
       .eq('phone', phone)
-      .limit(1)
-    
-    if (error) {
-      return { data: null, error }
-    }
-    
-    return { data: profiles && profiles.length > 0 ? profiles[0] : null, error: null }
-  },
-
-  // Get profile by national ID
-  async getProfileByNationalId(nationalId) {
-    const { data: profiles, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('national_id', nationalId)
       .limit(1)
     
     if (error) {
